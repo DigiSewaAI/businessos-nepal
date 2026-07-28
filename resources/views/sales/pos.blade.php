@@ -13,7 +13,9 @@
                         <input type="text" x-model="search" @input="filterProducts()" placeholder="Search products by name or SKU..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <select x-model="categoryFilter" @change="filterProducts()" class="px-4 py-2 border border-gray-300 rounded-lg">
                             <option value="">All Categories</option>
-                            <!-- Categories will be populated -->
+                            <template x-for="category in categories" :key="category.id">
+                                <option :value="category.id" x-text="category.name"></option>
+                            </template>
                         </select>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[500px] overflow-y-auto">
@@ -27,7 +29,6 @@
                                 <p class="text-sm font-semibold text-gray-800 mt-2 truncate" x-text="product.name"></p>
                                 <p class="text-xs text-gray-500" x-text="product.sku"></p>
                                 <p class="text-sm font-bold text-blue-600">Rs. <span x-text="parseFloat(product.sale_price).toFixed(2)"></span></p>
-                                <!-- Stock Display -->
                                 <p class="text-xs font-semibold mt-1" 
                                    :class="product.current_stock > 0 ? 'text-green-600' : 'text-red-600'">
                                     <span x-text="product.current_stock > 0 ? product.current_stock + ' in stock' : 'Out of Stock'"></span>
@@ -129,6 +130,7 @@ function posApp() {
         products: @json($products),
         customers: @json($customers),
         warehouses: @json($warehouses),
+        categories: @json($categories),
         search: '',
         categoryFilter: '',
         filteredProducts: [],
@@ -146,17 +148,24 @@ function posApp() {
 
         filterProducts() {
             let filtered = this.products;
+            
+            // Search filter
             if (this.search) {
                 filtered = filtered.filter(p => 
                     p.name.toLowerCase().includes(this.search.toLowerCase()) ||
                     p.sku.toLowerCase().includes(this.search.toLowerCase())
                 );
             }
+            
+            // Category filter
+            if (this.categoryFilter) {
+                filtered = filtered.filter(p => p.category_id == this.categoryFilter);
+            }
+            
             this.filteredProducts = filtered;
         },
 
         addToCart(product) {
-            // Check if product is out of stock
             if (product.current_stock <= 0) {
                 alert('❌ ' + product.name + ' is out of stock!');
                 return;
@@ -164,7 +173,6 @@ function posApp() {
 
             const existing = this.cart.find(item => item.product_id === product.id);
             if (existing) {
-                // Check if adding more exceeds stock
                 if (existing.quantity + 1 > product.current_stock) {
                     alert('❌ Only ' + product.current_stock + ' units available in stock!');
                     return;
@@ -177,7 +185,7 @@ function posApp() {
                     sku: product.sku,
                     price: parseFloat(product.sale_price),
                     quantity: 1,
-                    max_stock: product.current_stock, // Store max allowed
+                    max_stock: product.current_stock,
                     warehouse_id: this.warehouses.length > 0 ? this.warehouses[0].id : null,
                 });
             }
@@ -187,13 +195,11 @@ function posApp() {
             const item = this.cart[index];
             const newQty = item.quantity + delta;
             
-            // Prevent going below 1
             if (newQty < 1) {
                 this.cart.splice(index, 1);
                 return;
             }
             
-            // Prevent exceeding stock
             if (newQty > item.max_stock) {
                 alert('❌ Only ' + item.max_stock + ' units available in stock!');
                 return;
