@@ -18,13 +18,20 @@
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[500px] overflow-y-auto">
                         <template x-for="product in filteredProducts" :key="product.id">
-                            <div @click="addToCart(product)" class="bg-gray-50 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all text-center">
+                            <div @click="addToCart(product)" 
+                                 class="bg-gray-50 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all text-center"
+                                 :class="{'opacity-50 cursor-not-allowed': product.current_stock <= 0}">
                                 <div class="w-full h-20 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                                     <i class="fa-solid fa-box text-2xl"></i>
                                 </div>
                                 <p class="text-sm font-semibold text-gray-800 mt-2 truncate" x-text="product.name"></p>
                                 <p class="text-xs text-gray-500" x-text="product.sku"></p>
                                 <p class="text-sm font-bold text-blue-600">Rs. <span x-text="parseFloat(product.sale_price).toFixed(2)"></span></p>
+                                <!-- Stock Display -->
+                                <p class="text-xs font-semibold mt-1" 
+                                   :class="product.current_stock > 0 ? 'text-green-600' : 'text-red-600'">
+                                    <span x-text="product.current_stock > 0 ? product.current_stock + ' in stock' : 'Out of Stock'"></span>
+                                </p>
                             </div>
                         </template>
                         <template x-if="filteredProducts.length === 0">
@@ -149,8 +156,19 @@ function posApp() {
         },
 
         addToCart(product) {
+            // Check if product is out of stock
+            if (product.current_stock <= 0) {
+                alert('❌ ' + product.name + ' is out of stock!');
+                return;
+            }
+
             const existing = this.cart.find(item => item.product_id === product.id);
             if (existing) {
+                // Check if adding more exceeds stock
+                if (existing.quantity + 1 > product.current_stock) {
+                    alert('❌ Only ' + product.current_stock + ' units available in stock!');
+                    return;
+                }
                 existing.quantity += 1;
             } else {
                 this.cart.push({
@@ -159,6 +177,7 @@ function posApp() {
                     sku: product.sku,
                     price: parseFloat(product.sale_price),
                     quantity: 1,
+                    max_stock: product.current_stock, // Store max allowed
                     warehouse_id: this.warehouses.length > 0 ? this.warehouses[0].id : null,
                 });
             }
@@ -166,10 +185,21 @@ function posApp() {
 
         updateQuantity(index, delta) {
             const item = this.cart[index];
-            item.quantity += delta;
-            if (item.quantity <= 0) {
+            const newQty = item.quantity + delta;
+            
+            // Prevent going below 1
+            if (newQty < 1) {
                 this.cart.splice(index, 1);
+                return;
             }
+            
+            // Prevent exceeding stock
+            if (newQty > item.max_stock) {
+                alert('❌ Only ' + item.max_stock + ' units available in stock!');
+                return;
+            }
+            
+            item.quantity = newQty;
         },
 
         removeFromCart(index) {
@@ -226,18 +256,18 @@ function posApp() {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    alert('Sale completed! Invoice: ' + data.invoice_no);
+                    alert('✅ Sale completed! Invoice: ' + data.invoice_no);
                     this.cart = [];
                     this.customerPhone = '';
                     this.customerName = '';
                     this.paidAmount = 0;
                     this.discount = 0;
                 } else {
-                    alert('Error: ' + data.message);
+                    alert('❌ Error: ' + data.message);
                 }
             })
             .catch(err => {
-                alert('An error occurred: ' + err.message);
+                alert('❌ An error occurred: ' + err.message);
             });
         }
     };

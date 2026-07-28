@@ -8,6 +8,7 @@ use App\Models\Sale;
 use App\Models\Warehouse;
 use App\Services\SaleService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
@@ -26,6 +27,18 @@ class SaleController extends Controller
         $products = Product::with('variants', 'unit')
             ->where('status', 'active')
             ->get();
+
+        // Calculate current stock for each product
+        $productIds = $products->pluck('id');
+        $stocks = DB::table('stock_movements')
+            ->whereIn('product_id', $productIds)
+            ->select('product_id', DB::raw('SUM(CASE WHEN type = "in" THEN quantity ELSE 0 END) - SUM(CASE WHEN type = "out" THEN quantity ELSE 0 END) as current_stock'))
+            ->groupBy('product_id')
+            ->pluck('current_stock', 'product_id');
+
+        foreach ($products as $product) {
+            $product->current_stock = $stocks[$product->id] ?? 0;
+        }
 
         $customers = Customer::orderBy('name')->get();
         $warehouses = Warehouse::where('status', 'active')->get();
