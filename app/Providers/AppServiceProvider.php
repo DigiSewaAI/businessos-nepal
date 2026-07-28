@@ -21,7 +21,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Organization::addGlobalScope(new OrganizationScope());
         Branch::addGlobalScope(new OrganizationScope());
         Category::addGlobalScope(new OrganizationScope());
         Brand::addGlobalScope(new OrganizationScope());
