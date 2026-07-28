@@ -78,17 +78,24 @@
 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="{{ route('home') }}#features" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
-                    <a href="{{ route('home') }}#industries" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
-                    <a href="{{ route('home') }}#pricing" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
-                        <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
-                    @else
-                        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
-                    @endauth
-                    <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">Start Free</a>
-                </div>
+    <a href="{{ route('home') }}#features" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
+    <a href="{{ route('home') }}#industries" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
+    <a href="{{ route('home') }}#pricing" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
+    @auth
+        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
+        <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
+        <!-- Logout -->
+        <form method="POST" action="{{ route('logout') }}" class="inline">
+            @csrf
+            <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
+                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
+            </button>
+        </form>
+    @else
+        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
+    @endauth
+    <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">Start Free</a>
+</div>
 
                 <!-- Mobile Toggle -->
                 <div class="flex items-center md:hidden">
