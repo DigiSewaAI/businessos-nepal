@@ -10,7 +10,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
-            DefaultInventorySeeder::class,  // <-- Yo line ADD GARNU
+            DefaultInventorySeeder::class,
+            PlanSeeder::class,
         ]);
     }
 }

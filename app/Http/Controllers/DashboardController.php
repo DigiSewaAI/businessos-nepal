@@ -81,7 +81,7 @@ class DashboardController extends Controller
         }
 
         // 5. Cash Balance
-        $cashBalance = DB::table('cashbooks')
+        $cashBalance = DB::table('cashbook')
             ->where('organization_id', $organizationId)
             ->orderBy('created_at', 'desc')
             ->value('closing_balance') ?? 0;

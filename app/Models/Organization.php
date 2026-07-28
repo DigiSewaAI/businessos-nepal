@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\OrganizationSubscription; // <-- ADD THIS
 
 class Organization extends Model
 {
@@ -38,6 +39,12 @@ class Organization extends Model
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    // Plan Subscription (Phase 6)
+    public function subscription()
+    {
+        return $this->hasOne(OrganizationSubscription::class)->where('is_active', true)->latest();
     }
 
     // Scopes
