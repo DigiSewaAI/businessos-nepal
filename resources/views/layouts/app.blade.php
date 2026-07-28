@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'BusinessOS Nepal - SME Operating System')</title>
     
-    <!-- Tailwind CSS (CDN) -->
+    <!-- Tailwind CSS (CDN - Temporary, Vite pachi replace garne) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Alpine.js (CDN) -->
@@ -57,6 +57,9 @@
         .check-yes { color: #0d9488; }
         .check-no { color: #9ca3af; }
     </style>
+
+    <!-- Extra Styles for Specific Pages -->
+    @stack('styles')
 </head>
 <body class="font-sans antialiased bg-white">
 
@@ -75,11 +78,12 @@
 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#features" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
-                    <a href="#industries" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
-                    <a href="#pricing" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
+                    <a href="{{ route('home') }}#features" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
+                    <a href="{{ route('home') }}#industries" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
+                    <a href="{{ route('home') }}#pricing" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
                     @auth
                         <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
+                        <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
                     @else
                         <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
                     @endauth
@@ -98,12 +102,13 @@
         <!-- Mobile Menu -->
         <div x-show="open" x-transition.duration.300ms.opacity class="md:hidden bg-white border-b border-gray-100 py-4 px-4 shadow-lg">
             <div class="flex flex-col space-y-3">
-                <a href="#features" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
-                <a href="#industries" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Industries</a>
-                <a href="#pricing" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Pricing</a>
+                <a href="{{ route('home') }}#features" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
+                <a href="{{ route('home') }}#industries" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Industries</a>
+                <a href="{{ route('home') }}#pricing" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Pricing</a>
                 <hr class="border-gray-200">
                 @auth
                     <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">Dashboard</a>
+                    <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">POS</a>
                 @else
                     <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">Login</a>
                 @endauth
@@ -135,8 +140,8 @@
             <div>
                 <h4 class="text-white font-semibold mb-4">Product</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="#features" class="hover:text-white">Features</a></li>
-                    <li><a href="#pricing" class="hover:text-white">Pricing</a></li>
+                    <li><a href="{{ route('home') }}#features" class="hover:text-white">Features</a></li>
+                    <li><a href="{{ route('home') }}#pricing" class="hover:text-white">Pricing</a></li>
                     <li><a href="#" class="hover:text-white">Changelog</a></li>
                 </ul>
             </div>
