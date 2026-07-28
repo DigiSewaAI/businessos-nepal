@@ -102,27 +102,33 @@
                 <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-chart-bar text-blue-500"></i> Monthly Sales ({{ now()->year }})
                 </h3>
-                @if(isset($monthlySales) && count($monthlySales) > 0)
-                    <div class="flex items-end h-48 space-x-2">
-                        @foreach(range(1, 12) as $month)
-                            @php
-                                $value = $monthlySales[$month] ?? 0;
-                                $max = max($monthlySales) ?: 1;
-                                $height = $value > 0 ? max(($value / $max) * 100, 5) : 5;
-                            @endphp
-                            <div class="flex-1 flex flex-col items-center">
-                                <div class="w-full bg-teal-500/20 rounded-t" style="height: {{ $height }}%; min-height: 5px;"></div>
-                                <span class="text-xs text-gray-500 mt-1">{{ date('M', mktime(0,0,0,$month,1)) }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-sm text-gray-400 text-center py-6">
-                        <i class="fa-regular fa-calendar text-2xl block mb-2"></i>
-                        No sales data yet
-                    </p>
-                @endif
-            </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+    <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-chart-bar text-blue-500"></i> Monthly Sales ({{ now()->year }})
+    </h3>
+    @if(isset($monthlySales) && count($monthlySales) > 0)
+        @php
+            $maxValue = $monthlySales->max() ?: 1;
+        @endphp
+        <div class="flex items-end h-48 space-x-2">
+            @foreach(range(1, 12) as $month)
+                @php
+                    $value = $monthlySales[$month] ?? 0;
+                    $height = $value > 0 ? max(($value / $maxValue) * 100, 5) : 5;
+                @endphp
+                <div class="flex-1 flex flex-col items-center">
+                    <div class="w-full bg-teal-500/20 rounded-t" style="height: {{ $height }}%; min-height: 5px;"></div>
+                    <span class="text-xs text-gray-500 mt-1">{{ date('M', mktime(0,0,0,$month,1)) }}</span>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <p class="text-sm text-gray-400 text-center py-6">
+            <i class="fa-regular fa-calendar text-2xl block mb-2"></i>
+            No sales data yet
+        </p>
+    @endif
+</div>
         </div>
     </div>
 </div>
