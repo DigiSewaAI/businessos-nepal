@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
+            DefaultInventorySeeder::class,  // <-- Yo line ADD GARNU
         ]);
     }
 }

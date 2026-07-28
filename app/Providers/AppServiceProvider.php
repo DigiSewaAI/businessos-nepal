@@ -5,7 +5,11 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Organization;
 use App\Models\Branch;
-use App\Models\User;
+use App\Models\Category;
+use App\Models\Brand;
+use App\Models\Unit;
+use App\Models\Warehouse;
+use App\Models\Product;
 use App\Models\Scopes\OrganizationScope;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,9 +21,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Apply OrganizationScope to all tenant models
         Organization::addGlobalScope(new OrganizationScope());
         Branch::addGlobalScope(new OrganizationScope());
-        // Add other models later (Product, Supplier, etc.)
+        Category::addGlobalScope(new OrganizationScope());
+        Brand::addGlobalScope(new OrganizationScope());
+        Unit::addGlobalScope(new OrganizationScope());
+        Warehouse::addGlobalScope(new OrganizationScope());
+        Product::addGlobalScope(new OrganizationScope());
     }
 }
