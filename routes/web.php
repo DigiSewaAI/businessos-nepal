@@ -6,7 +6,7 @@ use App\Http\Controllers\SaleController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\CashbookController;
-
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return view('home');
@@ -34,6 +34,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Cashbook Routes
     Route::get('/cashbook', [CashbookController::class, 'index'])->name('cashbook.index');
     Route::post('/cashbook/close', [CashbookController::class, 'close'])->name('cashbook.close');
+        // Reports
+    Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+    Route::get('/reports/stock', [ReportController::class, 'stock'])->name('reports.stock');
+    Route::get('/reports/profit-loss', [ReportController::class, 'profitLoss'])->name('reports.profit-loss');
+
 });
 
 

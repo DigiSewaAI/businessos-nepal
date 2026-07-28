@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Organization;
-use App\Models\Branch;
-use App\Models\Product;
 use App\Models\Sale;
+use App\Models\Product;
+use App\Models\Expense;
+use App\Models\StockMovement;
+use App\Models\Organization;
+use App\Models\User;
+use App\Models\Branch;
 use App\Models\Category;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -16,7 +20,7 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // Check if user is Super Admin
+        // ===== SUPER ADMIN DASHBOARD =====
         if ($user->hasRole('Super Admin')) {
             $data = [
                 'total_organizations' => Organization::count(),
@@ -33,23 +37,84 @@ class DashboardController extends Controller
             return view('dashboard.super_admin', $data);
         }
 
-        // Regular User Dashboard
-        $orgId = $user->organization_id;
+        // ===== REGULAR USER DASHBOARD =====
+        $organizationId = $user->organization_id;
+        $today = Carbon::today();
 
-        $data = [
-            'total_products' => Product::where('organization_id', $orgId)->count(),
-            'today_sales' => Sale::where('organization_id', $orgId)
-                ->whereDate('created_at', today())
-                ->sum('total'),
-            'low_stock' => Product::where('organization_id', $orgId)
-                ->whereColumn('alert_quantity', '>=', 'quantity')
-                ->count(),
-            'recent_sales' => Sale::where('organization_id', $orgId)
-                ->latest()
-                ->limit(5)
-                ->get(),
-        ];
+        // 1. Today's Total Sales
+        $todaySales = Sale::where('organization_id', $organizationId)
+            ->whereDate('created_at', $today)
+            ->where('status', 'completed')
+            ->sum('total');
 
-        return view('dashboard.index', $data);
+        // 2. Today's Total Expenses
+        $todayExpenses = Expense::where('organization_id', $organizationId)
+            ->whereDate('created_at', $today)
+            ->sum('amount');
+
+        // 3. Today's Profit
+        $profitData = DB::table('sales')
+            ->join('sale_lines', 'sales.id', '=', 'sale_lines.sale_id')
+            ->join('products', 'sale_lines.product_id', '=', 'products.id')
+            ->where('sales.organization_id', $organizationId)
+            ->whereDate('sales.created_at', $today)
+            ->where('sales.status', 'completed')
+            ->select(DB::raw('SUM(sale_lines.total) as total_sales, SUM(products.purchase_price * sale_lines.quantity) as total_cost'))
+            ->first();
+
+        $todayProfit = 0;
+        if ($profitData && $profitData->total_sales) {
+            $todayProfit = $profitData->total_sales - $profitData->total_cost - $todayExpenses;
+        }
+
+        // 4. Low Stock Count
+        $productIds = Product::where('organization_id', $organizationId)->pluck('id');
+        $lowStockCount = 0;
+        foreach ($productIds as $productId) {
+            $product = Product::find($productId);
+            $currentStock = StockMovement::where('product_id', $productId)
+                ->select(DB::raw('SUM(CASE WHEN type = "in" THEN quantity ELSE 0 END) - SUM(CASE WHEN type = "out" THEN quantity ELSE 0 END) as stock'))
+                ->first()->stock ?? 0;
+            if ($currentStock <= $product->alert_quantity && $currentStock > 0) {
+                $lowStockCount++;
+            }
+        }
+
+        // 5. Cash Balance
+        $cashBalance = DB::table('cashbooks')
+            ->where('organization_id', $organizationId)
+            ->orderBy('created_at', 'desc')
+            ->value('closing_balance') ?? 0;
+
+        // 6. Top Selling Products
+        $topProducts = DB::table('sale_lines')
+            ->join('products', 'sale_lines.product_id', '=', 'products.id')
+            ->join('sales', 'sale_lines.sale_id', '=', 'sales.id')
+            ->where('sales.organization_id', $organizationId)
+            ->where('sales.status', 'completed')
+            ->select('products.name', DB::raw('SUM(sale_lines.quantity) as total_qty'), DB::raw('SUM(sale_lines.total) as total_amount'))
+            ->groupBy('products.id', 'products.name')
+            ->orderBy('total_qty', 'desc')
+            ->limit(5)
+            ->get();
+
+        // 7. Monthly Sales
+        $monthlySales = Sale::where('organization_id', $organizationId)
+            ->where('status', 'completed')
+            ->whereYear('created_at', Carbon::now()->year)
+            ->select(DB::raw('MONTH(created_at) as month'), DB::raw('SUM(total) as total'))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('total', 'month');
+
+        return view('dashboard', compact(
+            'todaySales',
+            'todayExpenses',
+            'todayProfit',
+            'lowStockCount',
+            'cashBalance',
+            'topProducts',
+            'monthlySales'
+        ));
     }
 }
