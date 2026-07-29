@@ -6,10 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'BusinessOS Nepal - SME Operating System')</title>
     
-    <!-- Tailwind CSS (CDN - Temporary, Vite pachi replace garne) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Alpine.js (CDN) -->
+    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Font Awesome -->
@@ -20,7 +20,6 @@
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800,900" rel="stylesheet" />
 
     <style>
-        /* Custom Styles */
         html {
             scroll-behavior: smooth;
         }
@@ -57,9 +56,6 @@
         .check-yes { color: #0d9488; }
         .check-no { color: #9ca3af; }
     </style>
-
-    <!-- Extra Styles for Specific Pages -->
-    @stack('styles')
 </head>
 <body class="font-sans antialiased bg-white">
 
@@ -78,24 +74,23 @@
 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center space-x-8">
-    <a href="{{ route('home') }}#features" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
-    <a href="{{ route('home') }}#industries" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
-    <a href="{{ route('home') }}#pricing" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
-    @auth
-        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
-        <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
-        <!-- Logout -->
-        <form method="POST" action="{{ route('logout') }}" class="inline">
-            @csrf
-            <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
-                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
-            </button>
-        </form>
-    @else
-        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
-    @endauth
-    <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">Start Free</a>
-</div>
+                    <!-- CHANGE: #features → route('pages.features') -->
+                    <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
+                    
+                    <!-- CHANGE: #industries → route('pages.industries') -->
+                    <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
+                    
+                    <!-- CHANGE: #pricing → route('pages.pricing') -->
+                    <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
+                    
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
+                    @else
+                        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
+                    @endauth
+                    
+                    <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">Start Free</a>
+                </div>
 
                 <!-- Mobile Toggle -->
                 <div class="flex items-center md:hidden">
@@ -109,13 +104,13 @@
         <!-- Mobile Menu -->
         <div x-show="open" x-transition.duration.300ms.opacity class="md:hidden bg-white border-b border-gray-100 py-4 px-4 shadow-lg">
             <div class="flex flex-col space-y-3">
-                <a href="{{ route('home') }}#features" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
-                <a href="{{ route('home') }}#industries" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Industries</a>
-                <a href="{{ route('home') }}#pricing" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Pricing</a>
+                <!-- CHANGE: mobile links pani update -->
+                <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
+                <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Industries</a>
+                <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Pricing</a>
                 <hr class="border-gray-200">
                 @auth
                     <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">Dashboard</a>
-                    <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">POS</a>
                 @else
                     <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">Login</a>
                 @endauth
@@ -147,25 +142,25 @@
             <div>
                 <h4 class="text-white font-semibold mb-4">Product</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="{{ route('home') }}#features" class="hover:text-white">Features</a></li>
-                    <li><a href="{{ route('home') }}#pricing" class="hover:text-white">Pricing</a></li>
-                    <li><a href="#" class="hover:text-white">Changelog</a></li>
+                    <li><a href="{{ route('pages.features') }}" class="hover:text-white">Features</a></li>
+                    <li><a href="{{ route('pages.pricing') }}" class="hover:text-white">Pricing</a></li>
+                    <li><a href="{{ route('pages.changelog') }}" class="hover:text-white">Changelog</a></li>
                 </ul>
             </div>
             <div>
                 <h4 class="text-white font-semibold mb-4">Company</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-white">About</a></li>
-                    <li><a href="#" class="hover:text-white">Contact</a></li>
-                    <li><a href="#" class="hover:text-white">Careers</a></li>
+                    <li><a href="{{ route('pages.about') }}" class="hover:text-white">About</a></li>
+                    <li><a href="{{ route('pages.contact') }}" class="hover:text-white">Contact</a></li>
+                    <li><a href="{{ route('pages.careers') }}" class="hover:text-white">Careers</a></li>
                 </ul>
             </div>
             <div>
                 <h4 class="text-white font-semibold mb-4">Support</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-white">Help Center</a></li>
-                    <li><a href="#" class="hover:text-white">Terms of Service</a></li>
-                    <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                    <li><a href="{{ route('pages.help') }}" class="hover:text-white">Help Center</a></li>
+                    <li><a href="{{ route('pages.terms') }}" class="hover:text-white">Terms of Service</a></li>
+                    <li><a href="{{ route('pages.privacy') }}" class="hover:text-white">Privacy Policy</a></li>
                 </ul>
             </div>
         </div>

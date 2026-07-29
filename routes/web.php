@@ -7,12 +7,26 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\CashbookController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\PlanController; // <-- ADD THIS
+use App\Http\Controllers\PlanController;
+use App\Http\Controllers\PageController; // <-- ADD THIS
 
+// ========== PUBLIC / MARKETING PAGES ==========
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::get('/features', [PageController::class, 'features'])->name('pages.features');
+Route::get('/industries', [PageController::class, 'industries'])->name('pages.industries');
+Route::get('/pricing', [PageController::class, 'pricing'])->name('pages.pricing');
+Route::get('/changelog', [PageController::class, 'changelog'])->name('pages.changelog');
+Route::get('/about', [PageController::class, 'about'])->name('pages.about');
+Route::get('/contact', [PageController::class, 'contact'])->name('pages.contact');
+Route::get('/careers', [PageController::class, 'careers'])->name('pages.careers');
+Route::get('/help', [PageController::class, 'help'])->name('pages.help');
+Route::get('/terms', [PageController::class, 'terms'])->name('pages.terms');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('pages.privacy');
+
+// ========== AUTH / APP ROUTES ==========
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     

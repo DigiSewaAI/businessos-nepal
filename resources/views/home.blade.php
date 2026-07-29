@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'BusinessOS Nepal - SME Operating System')
+@section('title', branding('meta_title', 'BusinessOS - SME Operating System'))
 
 @section('content')
 
@@ -11,22 +11,22 @@
         <div class="space-y-6">
             <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium border border-blue-100">
                 <i class="fa-solid fa-crown text-xs"></i>
-                Nepal's #1 SME Operating System
+                {{ branding('hero_badge', "Nepal's #1 SME Operating System") }}
             </div>
             <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight text-gray-900">
                 One Platform. <br />
                 <span class="text-gradient">Every Business.</span>
             </h1>
             <p class="text-lg text-gray-600 leading-relaxed max-w-lg">
-                Inventory, POS, Accounting, and Reports — everything your Nepali business needs to grow.
+                Inventory, POS, Accounting, and Reports — {{ branding('hero_subtitle', 'everything your business needs to grow') }}
                 <span class="font-semibold text-teal-700">Free to start.</span>
             </p>
             <div class="flex flex-wrap gap-4 pt-2">
                 <a href="{{ route('register') }}" class="gradient-bg text-white px-8 py-3 rounded-xl text-lg font-semibold shadow-xl hover:shadow-2xl transition-all hover:scale-105 flex items-center gap-2">
-                    Start Free Trial <i class="fa-solid fa-arrow-right"></i>
+                    {{ branding('cta_button_text', 'Start Free Trial') }} <i class="fa-solid fa-arrow-right"></i>
                 </a>
                 <a href="#features" class="border border-gray-300 text-gray-700 px-8 py-3 rounded-xl text-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
-                    <i class="fa-regular fa-circle-play"></i> See How
+                    <i class="fa-regular fa-circle-play"></i> {{ branding('cta_alt_button_text', 'See How') }}
                 </a>
             </div>
             <p class="text-sm text-gray-400 flex items-center gap-2">
@@ -119,7 +119,7 @@
 <section id="industries" class="py-20 px-4 bg-gray-50">
     <div class="max-w-7xl mx-auto">
         <div class="text-center max-w-3xl mx-auto mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Built for <span class="text-gradient">every Nepali business</span></h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ branding('industries_title', 'Built for every business') }}</h2>
             <p class="text-gray-500 mt-4">Retail, wholesale, services, and more.</p>
         </div>
         <div class="flex flex-wrap justify-center gap-3 md:gap-4">
@@ -141,7 +141,7 @@
 <section id="features" class="py-20 px-4 bg-white">
     <div class="max-w-7xl mx-auto">
         <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Why <span class="text-gradient">BusinessOS</span>?</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Why <span class="text-gradient">{{ branding('brand_name') }}</span>?</h2>
             <p class="text-gray-500 mt-4">Built for Nepal, powered by Laravel.</p>
         </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -184,7 +184,7 @@
                         <th class="px-6 py-4 text-center font-semibold text-gray-600">Excel</th>
                         <th class="px-6 py-4 text-center font-semibold text-gray-600">Paper</th>
                         <th class="px-6 py-4 text-center font-semibold text-gray-600">WhatsApp</th>
-                        <th class="px-6 py-4 text-center font-semibold text-teal-600 bg-teal-50">BusinessOS</th>
+                        <th class="px-6 py-4 text-center font-semibold text-teal-600 bg-teal-50">{{ branding('brand_name') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -247,7 +247,7 @@
 <!-- ============ TESTIMONIALS ============ -->
 <section class="py-20 px-4 bg-gray-50">
     <div class="max-w-4xl mx-auto text-center">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12">Trusted by <span class="text-gradient">Nepali businesses</span></h2>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12">{{ branding('testimonials_title', 'Trusted by businesses worldwide') }}</h2>
         <div class="grid md:grid-cols-2 gap-8">
             <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-left">
                 <div class="flex text-teal-500 mb-3">
@@ -283,7 +283,7 @@
                     <li><i class="fa-solid fa-check text-teal-300 mr-2"></i> 1 Branch</li>
                     <li><i class="fa-solid fa-check text-teal-300 mr-2"></i> Basic Reports</li>
                 </ul>
-                <a href="{{ route('register') }}" class="block mt-8 bg-white text-blue-700 py-2.5 px-6 rounded-lg font-semibold hover:bg-gray-100 transition">Get Started</a>
+                <a href="{{ route('register') }}" class="block mt-8 bg-white text-blue-700 py-2.5 px-6 rounded-lg font-semibold hover:bg-gray-100 transition">{{ branding('cta_button_text', 'Get Started') }}</a>
             </div>
 
             <!-- Pro -->
@@ -297,7 +297,7 @@
                     <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Advanced Reports</li>
                     <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Priority Support</li>
                 </ul>
-                <a href="{{ route('register') }}" class="block mt-8 gradient-bg text-white py-2.5 px-6 rounded-lg font-semibold hover:shadow-lg transition">Start Trial</a>
+                <a href="{{ route('register') }}" class="block mt-8 gradient-bg text-white py-2.5 px-6 rounded-lg font-semibold hover:shadow-lg transition">{{ branding('cta_button_text', 'Start Trial') }}</a>
             </div>
 
             <!-- Enterprise -->
@@ -358,7 +358,7 @@
         <h2 class="text-3xl md:text-5xl font-bold mb-6">Ready to transform <br> your business?</h2>
         <p class="text-blue-100 text-lg max-w-2xl mx-auto mb-10">Join 500+ Nepali businesses already using BusinessOS.</p>
         <a href="{{ route('register') }}" class="inline-block bg-white text-blue-700 px-12 py-4 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105">
-            Start Free Trial
+            {{ branding('cta_button_text', 'Start Free Trial') }}
         </a>
     </div>
 </section>
