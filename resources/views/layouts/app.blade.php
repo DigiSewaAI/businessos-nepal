@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'BusinessOS Nepal - SME Operating System')</title>
+    <title>@yield('title', branding('meta_title', 'BusinessOS - SME Operating System'))</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS (CDN - Temporary, Vite pachi replace garne) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Alpine.js -->
+    <!-- Alpine.js (CDN) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Font Awesome -->
@@ -20,6 +20,7 @@
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800,900" rel="stylesheet" />
 
     <style>
+        /* Custom Styles */
         html {
             scroll-behavior: smooth;
         }
@@ -56,40 +57,47 @@
         .check-yes { color: #0d9488; }
         .check-no { color: #9ca3af; }
     </style>
+
+    <!-- Extra Styles for Specific Pages -->
+    @stack('styles')
+
+    <!-- SEO Meta, OpenGraph, JSON-LD -->
+    @include('partials.seo')
 </head>
 <body class="font-sans antialiased bg-white">
 
     <!-- ============ NAVBAR ============ -->
     <nav x-data="{ open: false }" class="bg-white shadow-sm fixed w-full z-50 top-0 left-0 border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+            <div class="flex justify-between h-24">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                        <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-lg">B</div>
-                        <span class="text-xl font-bold text-gray-800">Business<span class="text-teal-600">OS</span></span>
-                        <span class="hidden md:inline-block text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Nepal</span>
+                        <img src="{{ asset(branding('logo')) }}" alt="{{ branding('brand_name') }}" style="height: 90px; width: auto;">
+                        @if(branding('country_badge'))
+                            <span class="hidden md:inline-block text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">{{ branding('country_badge') }}</span>
+                        @endif
                     </a>
                 </div>
 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <!-- CHANGE: #features → route('pages.features') -->
                     <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
-                    
-                    <!-- CHANGE: #industries → route('pages.industries') -->
                     <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
-                    
-                    <!-- CHANGE: #pricing → route('pages.pricing') -->
                     <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
-                    
                     @auth
                         <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
+                        <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
+                                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
+                            </button>
+                        </form>
                     @else
                         <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
                     @endauth
-                    
-                    <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">Start Free</a>
+                    <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">{{ branding('cta_button_text', 'Start Free') }}</a>
                 </div>
 
                 <!-- Mobile Toggle -->
@@ -104,17 +112,17 @@
         <!-- Mobile Menu -->
         <div x-show="open" x-transition.duration.300ms.opacity class="md:hidden bg-white border-b border-gray-100 py-4 px-4 shadow-lg">
             <div class="flex flex-col space-y-3">
-                <!-- CHANGE: mobile links pani update -->
                 <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
                 <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Industries</a>
                 <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Pricing</a>
                 <hr class="border-gray-200">
                 @auth
                     <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">Dashboard</a>
+                    <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">POS</a>
                 @else
                     <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">Login</a>
                 @endauth
-                <a href="{{ route('register') }}" class="gradient-bg text-white text-center px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-xl transition-all">Start Free</a>
+                <a href="{{ route('register') }}" class="gradient-bg text-white text-center px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-xl transition-all">{{ branding('cta_button_text', 'Start Free') }}</a>
             </div>
         </div>
     </nav>
@@ -129,14 +137,13 @@
         <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
             <div>
                 <div class="flex items-center space-x-2 mb-4">
-                    <div class="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center text-white font-bold text-lg">B</div>
-                    <span class="text-white font-bold text-xl">BusinessOS</span>
+                    <img src="{{ asset(branding('logo')) }}" alt="{{ branding('brand_name') }}" style="height: 80px; width: auto; filter: brightness(0) invert(1);">
                 </div>
-                <p class="text-sm">Empowering Nepali SMEs with modern technology.</p>
+                <p class="text-sm">{{ branding('footer_description') }}</p>
                 <div class="flex space-x-4 mt-4">
-                    <a href="#" class="hover:text-white"><i class="fa-brands fa-facebook"></i></a>
-                    <a href="#" class="hover:text-white"><i class="fa-brands fa-linkedin"></i></a>
-                    <a href="#" class="hover:text-white"><i class="fa-brands fa-youtube"></i></a>
+                    @foreach(branding('social_links', []) as $platform => $url)
+                        <a href="{{ $url }}" target="_blank" rel="noopener" class="hover:text-white"><i class="fa-brands fa-{{ $platform }}"></i></a>
+                    @endforeach
                 </div>
             </div>
             <div>
@@ -165,7 +172,7 @@
             </div>
         </div>
         <div class="max-w-7xl mx-auto border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-            &copy; {{ date('Y') }} BusinessOS Nepal. Made with ❤️ in Nepal.
+            {{ branding('footer_copyright', '© BusinessOS') }} {{ date('Y') }}. All rights reserved.
         </div>
     </footer>
 
