@@ -16,6 +16,10 @@ use App\Http\Controllers\Restaurant\TableController;
 use App\Http\Controllers\Restaurant\OrderController;
 use App\Http\Controllers\Restaurant\KOTController;
 use App\Http\Controllers\Restaurant\QRController;
+use App\Http\Controllers\School\StudentController;
+use App\Http\Controllers\School\FeeController;
+use App\Http\Controllers\School\AttendanceController;
+use App\Http\Controllers\School\ExamController;
 
 
 
@@ -112,6 +116,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Public QR (No auth)
     Route::get('/restaurant/menu/{table}', [QRController::class, 'menu'])->name('restaurant.menu');
     Route::post('/restaurant/order/{table}', [QRController::class, 'placeOrder'])->name('restaurant.place-order');
+        // School Routes
+    Route::prefix('school')->name('school.')->group(function () {
+        // Students
+        Route::resource('students', StudentController::class);
+
+        // Fees
+        Route::get('fees/invoices/{student}', [FeeController::class, 'generate'])->name('fees.generate');
+        Route::post('fees/pay/{invoice}', [FeeController::class, 'pay'])->name('fees.pay');
+        Route::get('fees/summary/{student}', [FeeController::class, 'summary'])->name('fees.summary');
+
+        // Attendance
+        Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+        Route::get('attendance/report', [AttendanceController::class, 'report'])->name('attendance.report');
+
+        // Exams
+        Route::resource('exams', ExamController::class);
+        Route::post('exams/{exam}/results', [ExamController::class, 'saveResults'])->name('exams.results');
+        Route::get('exams/{exam}/results', [ExamController::class, 'viewResults'])->name('exams.results.view');
+    });
+});
+// ========== API ROUTES FOR DYNAMIC DROPDOWNS ==========
+Route::middleware(['auth'])->group(function () {
+    Route::get('/api/sections', function (Illuminate\Http\Request $request) {
+        $classId = $request->class_id;
+        if (!$classId) {
+            return response()->json([]);
+        }
+        
+        $sections = App\Models\School\Section::where('school_class_id', $classId)
+            ->where('is_active', true)
+            ->select('id', 'name')
+            ->get();
+            
+        return response()->json($sections);
+    });
 });
 
 require __DIR__.'/auth.php';
