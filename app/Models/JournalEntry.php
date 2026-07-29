@@ -34,4 +34,8 @@ class JournalEntry extends Model
     {
         return $query->where('account', $account);
     }
+    public function account()
+{
+    return $this->belongsTo(Account::class);
+}
 }

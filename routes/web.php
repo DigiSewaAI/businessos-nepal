@@ -8,7 +8,16 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\CashbookController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PlanController;
-use App\Http\Controllers\PageController; // <-- ADD THIS
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\JournalEntryController;
+use App\Http\Controllers\FinancialReportController;
+use App\Http\Controllers\Restaurant\TableController;
+use App\Http\Controllers\Restaurant\OrderController;
+use App\Http\Controllers\Restaurant\KOTController;
+use App\Http\Controllers\Restaurant\QRController;
+
+
 
 // ========== PUBLIC / MARKETING PAGES ==========
 Route::get('/', function () {
@@ -61,6 +70,48 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Plan Routes (Phase 6: SaaS)
     Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
     Route::post('/plans/upgrade', [PlanController::class, 'upgrade'])->name('plans.upgrade');
+        // Accounts
+    Route::resource('accounts', AccountController::class)->except(['show']);
+    Route::get('accounts/{account}', [AccountController::class, 'show'])->name('accounts.show');
+
+    // Journal Entries
+    Route::resource('journal-entries', JournalEntryController::class);
+
+    // Financial Reports
+    Route::get('reports/trial-balance', [FinancialReportController::class, 'trialBalance'])->name('reports.trial-balance');
+    Route::get('reports/income-statement', [FinancialReportController::class, 'incomeStatement'])->name('reports.income-statement');
+    Route::get('reports/balance-sheet', [FinancialReportController::class, 'balanceSheet'])->name('reports.balance-sheet');
+        // Restaurant Routes
+    Route::prefix('restaurant')->name('restaurant.')->group(function () {
+        // Tables
+        Route::get('/tables', [TableController::class, 'index'])->name('tables.index');
+        Route::get('/tables/layout', [TableController::class, 'layout'])->name('tables.layout');
+        Route::get('/tables/create', [TableController::class, 'create'])->name('tables.create');
+        Route::post('/tables', [TableController::class, 'store'])->name('tables.store');
+        Route::get('/tables/{table}/edit', [TableController::class, 'edit'])->name('tables.edit');
+        Route::put('/tables/{table}', [TableController::class, 'update'])->name('tables.update');
+        Route::post('/tables/{table}/toggle/{status}', [TableController::class, 'toggleStatus'])->name('tables.toggle');
+        Route::post('/tables/{table}/qr', [TableController::class, 'generateQR'])->name('tables.qr');
+
+        // Orders
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/active', [OrderController::class, 'active'])->name('orders.active');
+        Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+        Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
+        Route::post('/orders/{order}/convert', [OrderController::class, 'convertToSale'])->name('orders.convert');
+
+        // KOT
+        Route::get('/kot', [KOTController::class, 'index'])->name('kot.index');
+        Route::get('/kot/pending', [KOTController::class, 'pending'])->name('kot.pending');
+        Route::post('/kot/{kot}/print', [KOTController::class, 'markPrinted'])->name('kot.print');
+        Route::get('/kitchen', [OrderController::class, 'kitchen'])->name('kitchen');
+    });
+
+    // Public QR (No auth)
+    Route::get('/restaurant/menu/{table}', [QRController::class, 'menu'])->name('restaurant.menu');
+    Route::post('/restaurant/order/{table}', [QRController::class, 'placeOrder'])->name('restaurant.place-order');
 });
 
 require __DIR__.'/auth.php';
