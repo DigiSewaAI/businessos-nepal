@@ -5,9 +5,15 @@
 @section('content')
 <div class="pt-24 pb-12 px-4 bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
+        <!-- Header with AI Button -->
+        <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
             <h1 class="text-2xl font-bold text-gray-900">Table Layout</h1>
-            <div class="flex gap-3">
+            <div class="flex flex-wrap gap-3">
+                <!-- ✅ NEW: AI Assistant Button -->
+                <a href="{{ route('ai.chat') }}?message={{ urlencode('Show me active restaurant orders and table status') }}" 
+                   class="bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-600 transition flex items-center gap-2">
+                    <i class="fa-regular fa-comment-dots"></i> AI Assistant
+                </a>
                 <a href="{{ route('restaurant.tables.create') }}" class="gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold">
                     <i class="fa-solid fa-plus"></i> Add Table
                 </a>
@@ -64,4 +70,4 @@
         </div>
     </div>
 </div>
-@endsection 
+@endsection

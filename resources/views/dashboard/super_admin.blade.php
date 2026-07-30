@@ -21,7 +21,6 @@
                 <a href="{{ route('sales.index') }}" class="bg-white px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:shadow-md transition-all">
                     <i class="fa-solid fa-chart-simple mr-1"></i> View Sales
                 </a>
-                <!-- Reports link – placeholder, route not yet defined -->
                 <a href="#" class="bg-white px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:shadow-md transition-all">
                     <i class="fa-solid fa-file-pdf mr-1"></i> Reports
                 </a>
@@ -88,6 +87,35 @@
                 </div>
                 <p class="text-2xl font-bold mt-3">Rs. {{ number_format($total_revenue, 0) }}</p>
                 <p class="text-sm opacity-80">Revenue</p>
+            </div>
+        </div>
+
+        <!-- ===== NEW: AI ASSISTANT WIDGET ===== -->
+        <div class="mb-8 bg-gradient-to-r from-blue-50 via-white to-teal-50 rounded-2xl border border-blue-100 p-6 shadow-sm hover:shadow-md transition-all">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-teal-500 rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg">
+                        <i class="fa-regular fa-comment-dots"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">🤖 AI Assistant</h3>
+                        <p class="text-sm text-gray-500">Ask anything about the system — sales, stock, revenue, or get instant insights.</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <a href="{{ route('ai.chat') }}" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md hover:shadow-lg flex items-center gap-2">
+                        <i class="fa-regular fa-paper-plane"></i> Ask AI
+                    </a>
+                    <button onclick="quickAIQuery('total_revenue')" class="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition flex items-center gap-1.5">
+                        💰 Revenue
+                    </button>
+                    <button onclick="quickAIQuery('top_products')" class="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition flex items-center gap-1.5">
+                        📦 Top Products
+                    </button>
+                    <button onclick="quickAIQuery('system_health')" class="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition flex items-center gap-1.5">
+                        📊 System Health
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -186,8 +214,31 @@
                     </div>
                     <span class="text-sm font-medium text-gray-700">Sales Report</span>
                 </a>
+                <!-- ✅ NEW: AI Assistant Quick Action -->
+                <a href="{{ route('ai.chat') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-teal-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition">
+                        <i class="fa-regular fa-comment-dots"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">AI Assistant</span>
+                    <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full">New</span>
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<!-- ===== AI QUICK QUERY SCRIPT ===== -->
+@push('scripts')
+<script>
+function quickAIQuery(type) {
+    const queries = {
+        'total_revenue': 'What is the total revenue across all organizations?',
+        'top_products': 'What are the top selling products globally?',
+        'system_health': 'How is the overall system health and performance?'
+    };
+    const message = queries[type] || 'Give me a system overview.';
+    window.location.href = "{{ route('ai.chat') }}?message=" + encodeURIComponent(message);
+}
+</script>
+@endpush
 @endsection

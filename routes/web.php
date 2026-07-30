@@ -20,13 +20,21 @@ use App\Http\Controllers\School\StudentController;
 use App\Http\Controllers\School\FeeController;
 use App\Http\Controllers\School\AttendanceController;
 use App\Http\Controllers\School\ExamController;
-
-
+use App\Http\Controllers\AI\AIController;
+use App\Http\Controllers\AI\ForecastController;
+use App\Http\Controllers\AI\AnomalyController;
 
 // ========== PUBLIC / MARKETING PAGES ==========
 Route::get('/', function () {
     return view('home');
 })->name('home');
+
+// ========== AI WARMUP (Model Pre-load) ==========
+Route::get('/ai/warmup', function () {
+    $ollama = app(\App\Services\AI\OllamaService::class);
+    $response = $ollama->generate('Hello, warmup');
+    return response()->json(['status' => 'Model loaded', 'time' => now()]);
+});
 
 Route::get('/features', [PageController::class, 'features'])->name('pages.features');
 Route::get('/industries', [PageController::class, 'industries'])->name('pages.industries');
@@ -152,6 +160,27 @@ Route::middleware(['auth'])->group(function () {
             
         return response()->json($sections);
     });
+        // ========== AI ROUTES ==========
+Route::prefix('ai')->name('ai.')->group(function () {
+    Route::get('/chat', [AIController::class, 'chat'])->name('chat');
+    
+    // ✅ Rate limited: 10 requests per minute per user
+    Route::post('/message', [AIController::class, 'sendMessage'])
+        ->name('message')
+        ->middleware(['throttle:10,1']);  // 10 requests per 1 minute
+
+    Route::get('/conversation/{id}', [AIController::class, 'conversation'])->name('conversation');
+    Route::delete('/conversation/{id}', [AIController::class, 'deleteConversation'])->name('conversation.delete');
+    Route::get('/dashboard', [AIController::class, 'dashboard'])->name('dashboard');
+    Route::get('/forecast', [ForecastController::class, 'index'])->name('forecast');
+    Route::post('/forecast/generate', [ForecastController::class, 'generate'])->name('forecast.generate');
+    Route::get('/anomalies', [AnomalyController::class, 'index'])->name('anomalies');
+    Route::post('/anomalies/check', [AnomalyController::class, 'check'])->name('anomalies.check');
+    Route::post('/anomalies/{id}/read', [AnomalyController::class, 'markRead'])->name('anomalies.read');
 });
+    
+});
+
+
 
 require __DIR__.'/auth.php';

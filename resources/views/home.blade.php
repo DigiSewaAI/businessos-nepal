@@ -25,6 +25,9 @@
                 <a href="{{ route('register') }}" class="gradient-bg text-white px-8 py-3 rounded-xl text-lg font-semibold shadow-xl hover:shadow-2xl transition-all hover:scale-105 flex items-center gap-2">
                     {{ branding('cta_button_text', 'Start Free Trial') }} <i class="fa-solid fa-arrow-right"></i>
                 </a>
+                <a href="{{ route('ai.chat') }}" class="border border-gray-300 text-gray-700 px-8 py-3 rounded-xl text-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
+    <i class="fa-regular fa-comment-dots"></i> Ask AI
+</a>
                 <a href="#features" class="border border-gray-300 text-gray-700 px-8 py-3 rounded-xl text-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
                     <i class="fa-regular fa-circle-play"></i> {{ branding('cta_alt_button_text', 'See How') }}
                 </a>
@@ -167,6 +170,50 @@
             </div>
             @endforeach
         </div>
+    </div>
+</section>
+
+<!-- ============ AI ASSISTANT SECTION (NEW) ============ -->
+<section class="py-20 px-4 bg-gradient-to-r from-blue-50 via-white to-teal-50">
+    <div class="max-w-5xl mx-auto text-center">
+        <div class="flex items-center justify-center gap-3 mb-4">
+            <span class="text-4xl">🤖</span>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+                Your <span class="text-gradient">AI Business Assistant</span>
+            </h2>
+        </div>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+            Ask anything about your business — sales, stock, profit, or get instant insights. 
+            Just type your question and get answers powered by AI, completely free.
+        </p>
+
+        <!-- Chat Preview Box -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 max-w-2xl mx-auto border border-gray-200">
+            <div class="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold">
+                    <i class="fa-regular fa-comment-dots"></i>
+                </div>
+                <input type="text" 
+                       class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-gray-700 placeholder-gray-400 cursor-default" 
+                       placeholder="Ask a question... e.g., 'What are my top products?'" readonly>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition cursor-default opacity-80">
+                    <i class="fa-regular fa-paper-plane"></i> Ask
+                </button>
+            </div>
+            <div class="text-xs text-gray-400 mt-3 flex flex-wrap justify-center gap-3">
+                <span class="bg-gray-100 px-2 py-1 rounded-full">💡 "Today's sales"</span>
+                <span class="bg-gray-100 px-2 py-1 rounded-full">💡 "Low stock items"</span>
+                <span class="bg-gray-100 px-2 py-1 rounded-full">💡 "Profit summary"</span>
+                <span class="bg-gray-100 px-2 py-1 rounded-full">💡 "Student attendance"</span>
+            </div>
+        </div>
+
+        <!-- CTA Button -->
+        <a href="{{ route('ai.chat') }}" 
+           class="inline-block mt-8 bg-gradient-to-r from-blue-600 to-teal-500 text-white px-10 py-4 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105">
+            <i class="fa-regular fa-comment-dots mr-2"></i> Try AI Assistant Now
+        </a>
+        <p class="text-sm text-gray-400 mt-3">✨ No login required for demo — but you'll get personalized insights after login.</p>
     </div>
 </section>
 

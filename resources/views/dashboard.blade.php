@@ -73,6 +73,35 @@
             </div>
         </div>
 
+        <!-- ===== NEW: AI ASSISTANT WIDGET ===== -->
+        <div class="mb-8 bg-gradient-to-r from-blue-50 via-white to-teal-50 rounded-2xl border border-blue-100 p-6 shadow-sm hover:shadow-md transition-all">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-teal-500 rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg">
+                        <i class="fa-regular fa-comment-dots"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">🤖 AI Assistant</h3>
+                        <p class="text-sm text-gray-500">Ask anything about your business — sales, stock, profit, or get instant insights.</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <a href="{{ route('ai.chat') }}" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md hover:shadow-lg flex items-center gap-2">
+                        <i class="fa-regular fa-paper-plane"></i> Ask AI
+                    </a>
+                    <button onclick="quickAIQuery('today_sales')" class="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition flex items-center gap-1.5">
+                        📊 Today's Sales
+                    </button>
+                    <button onclick="quickAIQuery('low_stock')" class="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition flex items-center gap-1.5">
+                        📦 Low Stock
+                    </button>
+                    <button onclick="quickAIQuery('profit')" class="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition flex items-center gap-1.5">
+                        💰 Profit
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Top Products + Monthly Chart -->
         <div class="grid lg:grid-cols-2 gap-6">
             <!-- Top Products -->
@@ -102,34 +131,80 @@
                 <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-chart-bar text-blue-500"></i> Monthly Sales ({{ now()->year }})
                 </h3>
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-    <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-        <i class="fa-solid fa-chart-bar text-blue-500"></i> Monthly Sales ({{ now()->year }})
-    </h3>
-    @if(isset($monthlySales) && count($monthlySales) > 0)
-        @php
-            $maxValue = $monthlySales->max() ?: 1;
-        @endphp
-        <div class="flex items-end h-48 space-x-2">
-            @foreach(range(1, 12) as $month)
-                @php
-                    $value = $monthlySales[$month] ?? 0;
-                    $height = $value > 0 ? max(($value / $maxValue) * 100, 5) : 5;
-                @endphp
-                <div class="flex-1 flex flex-col items-center">
-                    <div class="w-full bg-teal-500/20 rounded-t" style="height: {{ $height }}%; min-height: 5px;"></div>
-                    <span class="text-xs text-gray-500 mt-1">{{ date('M', mktime(0,0,0,$month,1)) }}</span>
-                </div>
-            @endforeach
+                @if(isset($monthlySales) && count($monthlySales) > 0)
+                    @php
+                        $maxValue = $monthlySales->max() ?: 1;
+                    @endphp
+                    <div class="flex items-end h-48 space-x-2">
+                        @foreach(range(1, 12) as $month)
+                            @php
+                                $value = $monthlySales[$month] ?? 0;
+                                $height = $value > 0 ? max(($value / $maxValue) * 100, 5) : 5;
+                            @endphp
+                            <div class="flex-1 flex flex-col items-center">
+                                <div class="w-full bg-teal-500/20 rounded-t" style="height: {{ $height }}%; min-height: 5px;"></div>
+                                <span class="text-xs text-gray-500 mt-1">{{ date('M', mktime(0,0,0,$month,1)) }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-sm text-gray-400 text-center py-6">
+                        <i class="fa-regular fa-calendar text-2xl block mb-2"></i>
+                        No sales data yet
+                    </p>
+                @endif
+            </div>
         </div>
-    @else
-        <p class="text-sm text-gray-400 text-center py-6">
-            <i class="fa-regular fa-calendar text-2xl block mb-2"></i>
-            No sales data yet
-        </p>
-    @endif
-</div>
+
+        <!-- ===== NEW: QUICK ACTIONS ===== -->
+        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-yellow-500"></i> Quick Actions
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="{{ route('sales.pos') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-cart-plus"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">POS</span>
+                </a>
+                <a href="{{ route('purchases.create') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-emerald-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-truck"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">New Purchase</span>
+                </a>
+                <a href="{{ route('expenses.create') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">Add Expense</span>
+                </a>
+                <!-- ✅ NEW: AI Assistant Quick Action -->
+                <a href="{{ route('ai.chat') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-teal-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition">
+                        <i class="fa-regular fa-comment-dots"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">AI Assistant</span>
+                    <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full">New</span>
+                </a>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- ===== AI QUICK QUERY SCRIPT ===== -->
+@push('scripts')
+<script>
+function quickAIQuery(type) {
+    const queries = {
+        'today_sales': 'What are my total sales today?',
+        'low_stock': 'Which products are low in stock?',
+        'profit': 'What is my profit today?'
+    };
+    const message = queries[type] || 'How is my business doing?';
+    window.location.href = "{{ route('ai.chat') }}?message=" + encodeURIComponent(message);
+}
+</script>
+@endpush
 @endsection

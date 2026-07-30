@@ -56,6 +56,15 @@
         }
         .check-yes { color: #0d9488; }
         .check-no { color: #9ca3af; }
+
+        /* AI Floating Button Animation */
+        .ai-pulse {
+            animation: aiPulse 2s ease-in-out infinite;
+        }
+        @keyframes aiPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
+        }
     </style>
 
     <!-- Extra Styles for Specific Pages -->
@@ -67,65 +76,93 @@
 <body class="font-sans antialiased bg-white">
 
     <!-- ============ NAVBAR ============ -->
-    <nav x-data="{ open: false }" class="bg-white shadow-sm fixed w-full z-50 top-0 left-0 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-24">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                        <img src="{{ asset(branding('logo')) }}" alt="{{ branding('brand_name') }}" style="height: 90px; width: auto;">
-                        @if(branding('country_badge'))
-                            <span class="hidden md:inline-block text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">{{ branding('country_badge') }}</span>
-                        @endif
-                    </a>
-                </div>
-
-                <!-- Desktop Nav -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
-                    <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
-                    <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
-                        <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
-                                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
-                            </button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
-                    @endauth
-                    <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">{{ branding('cta_button_text', 'Start Free') }}</a>
-                </div>
-
-                <!-- Mobile Toggle -->
-                <div class="flex items-center md:hidden">
-                    <button @click="open = !open" class="text-gray-500 hover:text-gray-700 focus:outline-none p-2">
-                        <i :class="open ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'" class="text-xl"></i>
-                    </button>
-                </div>
+<nav x-data="{ open: false }" class="bg-white shadow-sm fixed w-full z-50 top-0 left-0 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-24">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <a href="{{ route('home') }}" class="flex items-center space-x-2">
+                    <img src="{{ asset(branding('logo')) }}" alt="{{ branding('brand_name') }}" style="height: 90px; width: auto;">
+                    @if(branding('country_badge'))
+                        <span class="hidden md:inline-block text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">{{ branding('country_badge') }}</span>
+                    @endif
+                </a>
             </div>
-        </div>
 
-        <!-- Mobile Menu -->
-        <div x-show="open" x-transition.duration.300ms.opacity class="md:hidden bg-white border-b border-gray-100 py-4 px-4 shadow-lg">
-            <div class="flex flex-col space-y-3">
-                <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
-                <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Industries</a>
-                <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Pricing</a>
-                <hr class="border-gray-200">
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center space-x-8">
+                <!-- Public Links (Always visible) -->
+                <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
+                <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
+                <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
+
                 @auth
-                    <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">Dashboard</a>
-                    <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">POS</a>
+                    <!-- ✅ Dashboard (Always visible for auth users) -->
+                    <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
+                    <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
+
+                    <!-- ✅ AI Assistant Link with New Badge -->
+                    <a href="{{ route('ai.chat') }}" class="text-blue-600 hover:text-blue-800 transition font-medium text-sm flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+                        <i class="fa-regular fa-comment-dots text-blue-500"></i> AI
+                        <span class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full leading-none">New</span>
+                    </a>
+
+                    <!-- Logout -->
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
+                            <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
+                        </button>
+                    </form>
                 @else
-                    <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2">Login</a>
+                    <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
                 @endauth
-                <a href="{{ route('register') }}" class="gradient-bg text-white text-center px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-xl transition-all">{{ branding('cta_button_text', 'Start Free') }}</a>
+
+                <!-- ✅ Start Free Trial Button (Only for Guests) -->
+                @guest
+                    <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">
+                        {{ branding('cta_button_text', 'Start Free') }}
+                    </a>
+                @endguest
+            </div>
+
+            <!-- Mobile Toggle -->
+            <div class="flex items-center md:hidden">
+                <button @click="open = !open" class="text-gray-500 hover:text-gray-700 focus:outline-none p-2">
+                    <i :class="open ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'" class="text-xl"></i>
+                </button>
             </div>
         </div>
-    </nav>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div x-show="open" x-transition.duration.300ms.opacity class="md:hidden bg-white border-b border-gray-100 py-4 px-4 shadow-lg">
+        <div class="flex flex-col space-y-3">
+            <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
+            <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Industries</a>
+            <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Pricing</a>
+            <hr class="border-gray-200">
+
+            @auth
+                <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Dashboard</a>
+                <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">POS</a>
+                <a href="{{ route('ai.chat') }}" class="text-blue-600 hover:text-blue-800 transition font-medium px-3 py-2 rounded-lg hover:bg-blue-50 flex items-center gap-2">
+                    <i class="fa-regular fa-comment-dots text-blue-500"></i> AI Assistant
+                    <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full">New</span>
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium px-3 py-2 text-left w-full rounded-lg hover:bg-red-50">
+                        <i class="fa-solid fa-sign-out-alt mr-2"></i> Logout
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Login</a>
+                <a href="{{ route('register') }}" class="gradient-bg text-white text-center px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-xl transition-all">{{ branding('cta_button_text', 'Start Free') }}</a>
+            @endauth
+        </div>
+    </div>
+</nav>
 
     <!-- ============ MAIN CONTENT ============ -->
     <main>
@@ -175,6 +212,34 @@
             {{ branding('footer_copyright', '© BusinessOS') }} {{ date('Y') }}. All rights reserved.
         </div>
     </footer>
+
+    <!-- ============ AI FLOATING BUTTON ============ -->
+    @auth
+    <a href="{{ route('ai.chat') }}" 
+       x-data="{ showTooltip: false }"
+       @mouseenter="showTooltip = true"
+       @mouseleave="showTooltip = false"
+       class="fixed bottom-6 right-6 z-50 group">
+        <div class="relative">
+            <!-- Pulse ring -->
+            <div class="absolute inset-0 rounded-full bg-blue-400 opacity-60 ai-pulse"></div>
+            
+            <!-- Button -->
+            <div class="relative bg-gradient-to-r from-blue-600 to-teal-500 text-white p-4 rounded-full shadow-2xl hover:shadow-xl transition hover:scale-110 cursor-pointer">
+                <i class="fa-regular fa-comment-dots text-2xl"></i>
+            </div>
+            
+            <!-- Tooltip -->
+            <div x-show="showTooltip" 
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="absolute bottom-full right-0 mb-3 bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                Ask AI Assistant <i class="fa-regular fa-arrow-right ml-1"></i>
+            </div>
+        </div>
+    </a>
+    @endauth
 
     @stack('scripts')
 </body>
