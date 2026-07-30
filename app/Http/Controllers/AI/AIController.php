@@ -10,7 +10,8 @@ use App\Services\AI\IntentParser;
 use App\Services\AI\ContextBuilder;
 use App\Services\AI\Context\ContextManager;
 use App\Services\AI\Prompts\PromptManager;
-use App\Services\AI\IntentScorer; // <-- New for Phase 3
+use App\Services\AI\IntentScorer;
+use App\Services\AI\Agent\AgentOrchestrator; // <-- Phase 4
 use App\Services\AI\FAQService;
 use App\Services\AI\DataService;
 use App\Services\AI\ForecastingService;
@@ -31,7 +32,8 @@ class AIController extends Controller
     protected $anomalyService;
     protected $contextManager;
     protected $promptManager;
-    protected $intentScorer; // <-- New
+    protected $intentScorer;
+    protected $agentOrchestrator; // <-- Phase 4
 
     public function __construct(
         OllamaService $ollama,
@@ -43,7 +45,8 @@ class AIController extends Controller
         AnomalyService $anomalyService,
         ContextManager $contextManager,
         PromptManager $promptManager,
-        IntentScorer $intentScorer // <-- Injected
+        IntentScorer $intentScorer,
+        AgentOrchestrator $agentOrchestrator // <-- Injected
     ) {
         $this->ollama = $ollama;
         $this->intentParser = $intentParser;
@@ -54,7 +57,8 @@ class AIController extends Controller
         $this->anomalyService = $anomalyService;
         $this->contextManager = $contextManager;
         $this->promptManager = $promptManager;
-        $this->intentScorer = $intentScorer; // <-- Assign
+        $this->intentScorer = $intentScorer;
+        $this->agentOrchestrator = $agentOrchestrator; // <-- Assign
     }
 
     public function chat()
@@ -66,7 +70,8 @@ class AIController extends Controller
     }
 
     /**
-     * Hybrid AI message handler: FAQ → Data → Forecast → Anomaly → Ollama
+     * Hybrid AI message handler:
+     * Agent → FAQ → Data → Forecast → Anomaly → Ollama
      */
     public function sendMessage(Request $request)
     {
@@ -78,6 +83,19 @@ class AIController extends Controller
         $userId = auth()->id();
         $orgId = auth()->user()->organization_id;
         $message = $request->message;
+
+        // ========== STEP 0: AGENT (Phase 4) ==========
+        // Try Agent first – handles actions (create invoice, add product, etc.)
+        // and complex multi-tool queries.
+        try {
+            $agentResponse = $this->agentOrchestrator->execute($message);
+            if ($agentResponse) {
+                return $this->saveAndRespond($request, $message, $agentResponse, 'agent');
+            }
+        } catch (\Exception $e) {
+            Log::warning('Agent error: ' . $e->getMessage());
+            // Fallback to normal pipeline
+        }
 
         // --- Step 1: Check FAQ (Knowledge Base) ---
         try {
@@ -127,26 +145,23 @@ class AIController extends Controller
         $history = $this->getConversationHistory($conversation->id);
 
         try {
-            // 🔥 Phase 3: Intent Scoring System (replaces simple regex)
+            // 🔥 Phase 3: Intent Scoring System
             $cacheKey = 'ai_intent_scores_' . md5($message);
             $scores = Cache::remember($cacheKey, 300, function() use ($message) {
                 return $this->intentScorer->score($message);
             });
             $bestIntent = $this->intentScorer->getBestIntent($scores);
 
-            // Build intent array for metadata (backward compatibility)
             $intent = [
                 'category' => $bestIntent,
-                'action' => 'query', // Default, can be enhanced later
+                'action' => 'query',
                 'timeframe' => null,
-                'scores' => $scores, // Store scores for debugging
+                'scores' => $scores,
             ];
 
-            // Get dynamic context based on best intent (Phase 1)
             $context = $this->contextManager->getContext($bestIntent);
         } catch (\Exception $e) {
             Log::warning('Intent scoring failed: ' . $e->getMessage());
-            // Fallback to old parser
             $intent = $this->intentParser->parse($message);
             $bestIntent = $intent['category'] ?? 'general';
             $context = ['organization' => auth()->user()->organization->name ?? 'Your Business', 'metrics' => []];
@@ -154,10 +169,8 @@ class AIController extends Controller
 
         // --- Phase 2: Build Module-Specific Prompt ---
         try {
-            // Get system prompt from PromptManager
             $systemPrompt = $this->promptManager->getSystemPrompt($bestIntent, $context);
 
-            // Build full conversation prompt with history
             $historyText = '';
             foreach ($history as $msg) {
                 $role = $msg['role'] === 'user' ? 'User' : 'Assistant';
@@ -166,11 +179,9 @@ class AIController extends Controller
 
             $fullPrompt = $systemPrompt . "\n\n" . $historyText . "User: {$message}\nAssistant:";
 
-            // Call Ollama with full prompt
             if (method_exists($this->ollama, 'generate')) {
                 $aiResponse = $this->ollama->generate($fullPrompt);
             } else {
-                // Fallback to old method (for compatibility)
                 $aiResponse = $this->ollama->generateWithContext($history, $message);
             }
 
