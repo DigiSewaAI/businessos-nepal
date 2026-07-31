@@ -5,11 +5,16 @@
 @section('content')
 <div class="pt-24 pb-12 px-4 bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto">
-        <!-- Header with AI Button -->
+        <!-- Header with AI Button & Search -->
         <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
             <h1 class="text-2xl font-bold text-gray-900">Table Layout</h1>
             <div class="flex flex-wrap gap-3">
-                <!-- ✅ NEW: AI Assistant Button -->
+                <!-- ✅ NEW: Search Products Button -->
+                <a href="{{ route('products.search') }}" 
+                   class="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-200 transition flex items-center gap-2">
+                    <i class="fa-solid fa-search"></i> Search Products
+                </a>
+                <!-- ✅ Existing: AI Assistant Button -->
                 <a href="{{ route('ai.chat') }}?message={{ urlencode('Show me active restaurant orders and table status') }}" 
                    class="bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-600 transition flex items-center gap-2">
                     <i class="fa-regular fa-comment-dots"></i> AI Assistant

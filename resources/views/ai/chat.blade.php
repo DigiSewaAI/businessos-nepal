@@ -3,94 +3,169 @@
 @section('title', 'AI Assistant')
 
 @section('content')
-<div class="pt-24 pb-12 px-4 bg-gray-50 min-h-screen">
+<div class="pt-24 pb-12 px-4 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
     <div class="max-w-5xl mx-auto">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <!-- Header -->
-            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                <h1 class="text-xl font-bold text-gray-800">🤖 AI Assistant</h1>
+        <!-- Main Card with Glass Effect -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/50 overflow-hidden transition-all duration-300 hover:shadow-xl">
+
+            <!-- Header with Gradient -->
+            <div class="px-6 py-5 bg-gradient-to-r from-blue-600 to-teal-500 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                        <i class="fa-regular fa-comment-dots text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-white tracking-tight">AI Assistant</h1>
+                        <p class="text-xs text-blue-100 opacity-90">Your business intelligence partner</p>
+                    </div>
+                </div>
                 <div class="flex gap-2">
-                    <a href="{{ route('ai.dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700">
-                        <i class="fa-solid fa-chart-simple"></i>
-                    </a>
-                    <button onclick="newChat()" class="text-sm bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700">
+                    @auth
+    <a href="{{ route('ai.dashboard') }}" class="text-white/80 hover:text-white transition p-2 rounded-lg hover:bg-white/20" title="Dashboard">
+        <i class="fa-solid fa-chart-simple"></i>
+    </a>
+@endauth
+                    <button onclick="newChat()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl font-semibold text-sm transition flex items-center gap-2 backdrop-blur-sm">
                         <i class="fa-solid fa-plus"></i> New Chat
                     </button>
                 </div>
             </div>
 
+            <!-- Demo Banner (shown only for guests) -->
+            @if($isGuest ?? false)
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200 px-6 py-3 flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 text-amber-700">
+                        <i class="fa-solid fa-circle-info text-amber-500 animate-pulse"></i>
+                        <span class="font-semibold text-sm">🔬 Demo Mode</span>
+                        <span class="text-sm text-gray-600 hidden sm:inline">— You're exploring with sample data.</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition">Login</a>
+                        <span class="text-gray-400">|</span>
+                        <a href="{{ route('register') }}" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm">Start Free Trial</a>
+                    </div>
+                </div>
+            @endif
+
             <!-- Messages Container -->
-            <div id="chatMessages" class="h-96 overflow-y-auto p-4 space-y-4 bg-gray-50 relative">
+            <div id="chatMessages" class="h-[440px] overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50/80 to-white/80 relative scroll-smooth">
                 <!-- Initial empty state -->
-                <div id="initialMessage" class="text-center text-gray-400 text-sm py-12">
-                    <div class="text-4xl mb-3">🤖</div>
-                    <p>Ask me anything about your business.</p>
-                    <p class="text-xs mt-1">I can help with sales, inventory, finance, and more.</p>
+                <div id="initialMessage" class="text-center text-gray-400 text-sm py-16">
+                    <div class="text-6xl mb-4 animate-bounce-slow">🤖</div>
+                    <p class="text-lg font-medium text-gray-600">How can I help you today?</p>
+                    <p class="text-xs mt-2 max-w-md mx-auto text-gray-400">Ask about sales, stock, profit, attendance, or anything business-related.</p>
+                    <div class="mt-6 flex flex-wrap justify-center gap-2">
+                        <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs">📊 Sales</span>
+                        <span class="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs">📦 Stock</span>
+                        <span class="bg-purple-50 text-purple-600 px-3 py-1 rounded-full text-xs">💰 Profit</span>
+                        <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-xs">🎓 Attendance</span>
+                    </div>
                 </div>
 
                 <!-- Typing Indicator (hidden by default) -->
-                <div id="typingIndicator" class="hidden flex items-center gap-2 text-gray-400 text-sm p-2">
-                    <div class="flex gap-1">
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                <div id="typingIndicator" class="hidden flex items-center gap-3 text-gray-400 text-sm p-3 bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 max-w-fit">
+                    <div class="flex gap-1.5">
+                        <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
+                        <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                        <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
                     </div>
-                    <span>AI is thinking...</span>
+                    <span class="text-xs font-medium">AI is thinking...</span>
                 </div>
             </div>
 
-            <!-- Input Area -->
-            <div class="border-t border-gray-200 p-4 bg-white">
-                <form id="chatForm" class="flex gap-2" autocomplete="off">
+            <!-- Input Area with Quick Actions -->
+            <div class="border-t border-gray-200/80 p-5 bg-white/70 backdrop-blur-sm">
+                <form id="chatForm" class="flex gap-3" autocomplete="off">
                     @csrf
                     <input type="hidden" id="conversation_id" value="">
-                    <input type="text" id="userMessage" 
-                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                        placeholder="Ask a question..." autocomplete="off">
-                    <button type="submit" id="sendButton" class="gradient-bg text-white px-6 py-2 rounded-lg font-semibold hover:opacity-90 text-sm">
+                    <div class="flex-1 relative">
+                        <input type="text" id="userMessage"
+                            class="w-full px-5 py-3.5 pr-12 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white/90 transition shadow-sm hover:shadow-md"
+                            placeholder="Ask a question... (e.g., 'Today's sales')" autocomplete="off">
+                        <i class="fa-regular fa-face-smile absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg hover:text-blue-500 cursor-pointer transition"></i>
+                    </div>
+                    <button type="submit" id="sendButton" class="gradient-bg text-white px-6 py-3.5 rounded-2xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm flex items-center gap-2">
                         <i class="fa-solid fa-paper-plane"></i> Send
                     </button>
                 </form>
 
-                <!-- ✅ Quick Action Buttons (E1) -->
-                <div class="flex flex-wrap gap-2 mt-2">
-                    <button onclick="quickQuery('Today ko sales kati cha?')" 
-                        class="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition flex items-center gap-1">
+                <!-- Quick Action Buttons -->
+                <div class="flex flex-wrap gap-2 mt-3">
+                    <button onclick="quickQuery('Today ko sales kati cha?')"
+                        class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-blue-100">
                         📊 Today's Sales
                     </button>
-                    <button onclick="quickQuery('Low stock items haru dekhau')" 
-                        class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 transition flex items-center gap-1">
+                    <button onclick="quickQuery('Low stock items haru dekhau')"
+                        class="text-xs bg-red-50 hover:bg-red-100 text-red-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-red-100">
                         📦 Low Stock
                     </button>
-                    <button onclick="quickQuery('Profit kati cha?')" 
-                        class="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-lg hover:bg-green-100 transition flex items-center gap-1">
+                    <button onclick="quickQuery('Profit kati cha?')"
+                        class="text-xs bg-green-50 hover:bg-green-100 text-green-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-green-100">
                         💰 Profit
                     </button>
-                    <button onclick="quickQuery('BusinessOS ko pricing kati ho?')" 
-                        class="text-xs bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-100 transition flex items-center gap-1">
+                    <button onclick="quickQuery('BusinessOS ko pricing kati ho?')"
+                        class="text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-purple-100">
                         💎 Pricing
                     </button>
-                    <button onclick="quickQuery('Attendence summary dekhau')" 
-                        class="text-xs bg-orange-50 text-orange-600 px-3 py-1.5 rounded-lg hover:bg-orange-100 transition flex items-center gap-1">
+                    <button onclick="quickQuery('Attendence summary dekhau')"
+                        class="text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-orange-100">
                         🎓 Attendance
                     </button>
+                    <a href="{{ route('products.search') }}"
+                        class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-indigo-100">
+                        🔍 Search Products
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar: Previous chats -->
-        <div class="mt-4 bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
-            <h3 class="text-sm font-semibold text-gray-700 mb-2">Recent Chats</h3>
+        <!-- Sidebar: Recent Chats -->
+        <div class="mt-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-5 transition hover:shadow-xl">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <i class="fa-regular fa-clock text-blue-500"></i> Recent Chats
+            </h3>
             <div id="recentChats" class="flex flex-wrap gap-2">
-                @foreach($conversations as $conv)
-                    <button onclick="loadChat('{{ $conv->id }}')" class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-200">
+                @forelse($conversations ?? [] as $conv)
+                    <button onclick="loadChat('{{ $conv->id }}')" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded-full transition shadow-sm">
                         {{ $conv->title }}
                     </button>
-                @endforeach
+                @empty
+                    <span class="text-xs text-gray-400">No previous chats. Start a new one above!</span>
+                @endforelse
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-12px); }
+    }
+    .animate-bounce-slow {
+        animation: bounce-slow 2.5s infinite ease-in-out;
+    }
+    .gradient-bg {
+        background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%);
+    }
+    .gradient-bg:hover {
+        background: linear-gradient(135deg, #1e40af 0%, #0f766e 100%);
+    }
+    /* Scrollbar styling */
+    #chatMessages::-webkit-scrollbar {
+        width: 5px;
+    }
+    #chatMessages::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #chatMessages::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    #chatMessages::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -118,15 +193,22 @@
         }
 
         // Add a message to the chat
-        function addMessage(role, content) {
+        function addMessage(role, content, isDemo = false) {
             removeInitialMessage();
             const div = document.createElement('div');
-            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`;
             const time = new Date().toLocaleTimeString();
+            let extraClass = role === 'user' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 text-gray-800';
+            if (isDemo && role === 'assistant') {
+                extraClass += ' border-l-4 border-amber-400';
+            }
             div.innerHTML = `
-                <div class="${role === 'user' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 text-gray-800'} rounded-xl px-4 py-2 max-w-lg shadow-sm">
+                <div class="${extraClass} rounded-2xl px-5 py-3 max-w-[85%] shadow-sm hover:shadow-md transition">
                     ${content.replace(/\n/g, '<br>')}
-                    <div class="text-xs ${role === 'user' ? 'text-blue-200' : 'text-gray-400'} mt-1">${time}</div>
+                    <div class="text-xs ${role === 'user' ? 'text-blue-200' : 'text-gray-400'} mt-1.5 flex items-center gap-2">
+                        ${time}
+                        ${isDemo ? '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-medium">Demo</span>' : ''}
+                    </div>
                 </div>
             `;
             container.appendChild(div);
@@ -139,12 +221,10 @@
             const message = input.value.trim();
             if (!message) return;
 
-            // Disable send button and show typing indicator
             sendBtn.disabled = true;
             sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
             setTyping(true);
 
-            // Add user message
             addMessage('user', message);
             input.value = '';
 
@@ -159,24 +239,33 @@
                     body: JSON.stringify({ message, conversation_id: convoId })
                 });
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Network error');
 
                 const data = await response.json();
                 convoIdInput.value = data.conversation_id;
 
-                // Hide typing indicator before adding assistant reply
                 setTyping(false);
-                addMessage('assistant', data.response);
+                const isDemo = data.is_demo || false;
+                addMessage('assistant', data.response, isDemo);
 
-                // Optionally, update recent chats if a new conversation was created
-                // (for simplicity, we might reload the page later)
+                // If needs login, show extra CTA
+                if (data.needs_login) {
+                    const loginDiv = document.createElement('div');
+                    loginDiv.className = 'flex justify-start mt-1';
+                    loginDiv.innerHTML = `
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-gray-700 flex items-center gap-3">
+                            <i class="fa-solid fa-lock text-blue-500"></i>
+                            <span>Want real data? <a href="{{ route('login') }}" class="text-blue-600 font-semibold hover:underline">Login</a> or <a href="{{ route('register') }}" class="text-blue-600 font-semibold hover:underline">Start Free Trial</a></span>
+                        </div>
+                    `;
+                    container.appendChild(loginDiv);
+                    container.scrollTop = container.scrollHeight;
+                }
 
             } catch (error) {
-                console.error('Error:', error);
+                console.error(error);
                 setTyping(false);
-                addMessage('assistant', 'I apologize, but I encountered an error. Please try again.');
+                addMessage('assistant', '⚠️ Sorry, something went wrong. Please try again.');
             } finally {
                 sendBtn.disabled = false;
                 sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send';
@@ -193,22 +282,26 @@
         window.newChat = function() {
             convoIdInput.value = '';
             container.innerHTML = `
-                <div id="initialMessage" class="text-center text-gray-400 text-sm py-12">
-                    <div class="text-4xl mb-3">🤖</div>
-                    <p>Ask me anything about your business.</p>
-                    <p class="text-xs mt-1">I can help with sales, inventory, finance, and more.</p>
-                </div>
-                <div id="typingIndicator" class="hidden flex items-center gap-2 text-gray-400 text-sm p-2">
-                    <div class="flex gap-1">
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                <div id="initialMessage" class="text-center text-gray-400 text-sm py-16">
+                    <div class="text-6xl mb-4 animate-bounce-slow">🤖</div>
+                    <p class="text-lg font-medium text-gray-600">How can I help you today?</p>
+                    <p class="text-xs mt-2 max-w-md mx-auto text-gray-400">Ask about sales, stock, profit, attendance, or anything business-related.</p>
+                    <div class="mt-6 flex flex-wrap justify-center gap-2">
+                        <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs">📊 Sales</span>
+                        <span class="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs">📦 Stock</span>
+                        <span class="bg-purple-50 text-purple-600 px-3 py-1 rounded-full text-xs">💰 Profit</span>
+                        <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-xs">🎓 Attendance</span>
                     </div>
-                    <span>AI is thinking...</span>
+                </div>
+                <div id="typingIndicator" class="hidden flex items-center gap-3 text-gray-400 text-sm p-3 bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 max-w-fit">
+                    <div class="flex gap-1.5">
+                        <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
+                        <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                        <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                    </div>
+                    <span class="text-xs font-medium">AI is thinking...</span>
                 </div>
             `;
-            // Re-set references (for simplicity, we just keep the global ones; they get updated)
-            // We'll just reassign the initialMsg and typingIndicator
             window.initialMsg = document.getElementById('initialMessage');
             window.typingIndicator = document.getElementById('typingIndicator');
         };
@@ -220,19 +313,18 @@
                 const messages = await response.json();
                 convoIdInput.value = id;
                 container.innerHTML = `
-                    <div id="typingIndicator" class="hidden flex items-center gap-2 text-gray-400 text-sm p-2">
-                        <div class="flex gap-1">
-                            <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
-                            <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
-                            <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                    <div id="typingIndicator" class="hidden flex items-center gap-3 text-gray-400 text-sm p-3 bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 max-w-fit">
+                        <div class="flex gap-1.5">
+                            <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
+                            <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                            <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
                         </div>
-                        <span>AI is thinking...</span>
+                        <span class="text-xs font-medium">AI is thinking...</span>
                     </div>
                 `;
                 messages.forEach(msg => {
                     addMessage(msg.role, msg.content);
                 });
-                // Reassign typing indicator reference
                 window.typingIndicator = document.getElementById('typingIndicator');
             } catch (error) {
                 console.error('Error loading chat:', error);
@@ -244,14 +336,20 @@
             removeInitialMessage();
         }
 
-        // Store references globally for reuse (optional)
         window.initialMsg = initialMsg;
         window.typingIndicator = typingIndicator;
     });
 </script>
 
-{{-- Include CSS for bounce animation if not already present --}}
+{{-- Add fade-in animation --}}
 <style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out;
+    }
     @keyframes bounce {
         0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
         40% { transform: scale(1.2); opacity: 1; }

@@ -12,32 +12,44 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'organization_id',
-        'branch_id',
-        'phone',
-        'avatar',
-        'is_active',
+        'name', 'email', 'phone', 'password',
+        'organization_id', 'branch_id', 'onboarding_completed',
+        'two_factor_secret', 'email_verified_at'
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_active' => 'boolean',
+            'is_active' => 'boolean',          // Keep if you have this column
+            'onboarding_completed' => 'boolean', // NEW
+            'two_factor_secret' => 'string',    // NEW
         ];
     }
 
-    // Relationships
+    // ========== RELATIONSHIPS ==========
     public function organization()
     {
         return $this->belongsTo(Organization::class);
@@ -48,5 +60,6 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class);
     }
 
-    // Global Scope for Multi-Tenancy is added in AppServiceProvider later
+    // Optional: add other relationships if needed
+    // public function createdBranches() etc.
 }

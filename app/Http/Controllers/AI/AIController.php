@@ -11,15 +11,20 @@ use App\Services\AI\ContextBuilder;
 use App\Services\AI\Context\ContextManager;
 use App\Services\AI\Prompts\PromptManager;
 use App\Services\AI\IntentScorer;
-use App\Services\AI\Agent\AgentOrchestrator; // <-- Phase 4
+use App\Services\AI\Agent\AgentOrchestrator;
 use App\Services\AI\FAQService;
 use App\Services\AI\DataService;
 use App\Services\AI\ForecastingService;
 use App\Services\AI\AnomalyService;
+use App\Services\AI\AnalyticsService;
+use App\Services\AI\DemoDataService;
+use App\Jobs\AIProcessJob;
+use App\Exports\ConversationExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AIController extends Controller
 {
@@ -33,7 +38,9 @@ class AIController extends Controller
     protected $contextManager;
     protected $promptManager;
     protected $intentScorer;
-    protected $agentOrchestrator; // <-- Phase 4
+    protected $agentOrchestrator;
+    protected $analyticsService;
+    protected $demoDataService;
 
     public function __construct(
         OllamaService $ollama,
@@ -46,7 +53,9 @@ class AIController extends Controller
         ContextManager $contextManager,
         PromptManager $promptManager,
         IntentScorer $intentScorer,
-        AgentOrchestrator $agentOrchestrator // <-- Injected
+        AgentOrchestrator $agentOrchestrator,
+        AnalyticsService $analyticsService,
+        DemoDataService $demoDataService
     ) {
         $this->ollama = $ollama;
         $this->intentParser = $intentParser;
@@ -58,20 +67,34 @@ class AIController extends Controller
         $this->contextManager = $contextManager;
         $this->promptManager = $promptManager;
         $this->intentScorer = $intentScorer;
-        $this->agentOrchestrator = $agentOrchestrator; // <-- Assign
-    }
-
-    public function chat()
-    {
-        $conversations = Conversation::where('user_id', auth()->id())
-            ->orderBy('updated_at', 'desc')
-            ->get();
-        return view('ai.chat', compact('conversations'));
+        $this->agentOrchestrator = $agentOrchestrator;
+        $this->analyticsService = $analyticsService;
+        $this->demoDataService = $demoDataService;
     }
 
     /**
-     * Hybrid AI message handler:
-     * Agent → FAQ → Data → Forecast → Anomaly → Ollama
+     * Show the chat interface (Public accessible)
+     */
+    public function chat()
+    {
+        $isGuest = !auth()->check();
+        $conversations = [];
+        $messages = [];
+
+        if (auth()->check()) {
+            // Logged in: get user conversations
+            $conversations = Conversation::where('user_id', auth()->id())
+                ->orderBy('updated_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
+
+        // For guest, we don't load messages (just show empty with demo banner)
+        return view('ai.chat', compact('conversations', 'messages', 'isGuest'));
+    }
+
+    /**
+     * Send message - PUBLIC ACCESS allowed (with demo mode for guests)
      */
     public function sendMessage(Request $request)
     {
@@ -80,48 +103,100 @@ class AIController extends Controller
             'conversation_id' => 'nullable|exists:ai_conversations,id',
         ]);
 
+        $startTime = microtime(true);
+        $message = trim($request->message);
+        $lower = strtolower($message);
+        $isGuest = !auth()->check();
+
+        // ─── GUEST / DEMO MODE ──────────────────────────────────────
+        if ($isGuest) {
+            // Use DemoDataService for public responses
+            $response = $this->demoDataService->getDemoAnswer($message);
+
+            // ✅ Convert markdown [text](url) to HTML <a> tags
+            $response = $this->markdownToHtml($response);
+            
+            // Check if user asked for personal data
+            $personalKeywords = ['my', 'mero', 'our', 'hamro', 'my business', 'mero business'];
+            $needsLogin = false;
+            foreach ($personalKeywords as $kw) {
+                if (stripos($message, $kw) !== false) {
+                    $needsLogin = true;
+                    break;
+                }
+            }
+
+            $this->logAnalytics($message, 'demo', 'demo', $startTime, true);
+
+            return response()->json([
+                'response' => $response,
+                'is_demo' => true,
+                'needs_login' => $needsLogin,
+                'conversation_id' => null,
+            ]);
+        }
+
+        // ─── LOGGED IN USER ──────────────────────────────────────────
         $userId = auth()->id();
         $orgId = auth()->user()->organization_id;
-        $message = $request->message;
+        $source = 'unknown';
+        $bestIntent = 'general';
 
-        // ========== STEP 0: AGENT (Phase 4) ==========
-        // Try Agent first – handles actions (create invoice, add product, etc.)
-        // and complex multi-tool queries.
+        // ============================================================
+        // 🟢 STEP 0: GREETINGS / SMALL TALK
+        // ============================================================
+        $greetings = ['hello', 'hi', 'hey', 'hola', 'namaste', 'नमस्ते', 'namaskar', 'नमस्कार'];
+        if (in_array($lower, $greetings) || strlen($message) <= 3) {
+            return $this->handleGreeting($request, $message, $startTime);
+        }
+
+        // ============================================================
+        // 🟢 STEP 1: AGENT (Phase 4 - Actions)
+        // ============================================================
         try {
             $agentResponse = $this->agentOrchestrator->execute($message);
             if ($agentResponse) {
+                $this->logAnalytics($message, 'agent', 'action', $startTime, true);
                 return $this->saveAndRespond($request, $message, $agentResponse, 'agent');
             }
         } catch (\Exception $e) {
             Log::warning('Agent error: ' . $e->getMessage());
-            // Fallback to normal pipeline
         }
 
-        // --- Step 1: Check FAQ (Knowledge Base) ---
+        // ============================================================
+        // 🟢 STEP 2: FAQ (Static Knowledge)
+        // ============================================================
         try {
             $faqAnswer = $this->faqService->findAnswer($message);
             if ($faqAnswer) {
+                $this->logAnalytics($message, 'faq', 'faq', $startTime, true);
                 return $this->saveAndRespond($request, $message, $faqAnswer, 'faq');
             }
         } catch (\Exception $e) {
             Log::warning('FAQ error: ' . $e->getMessage());
         }
 
-        // --- Step 2: Check Business Data (Stock, Sales, Profit) ---
+        // ============================================================
+        // 🟢 STEP 3: BUSINESS DATA (Stock, Sales, Profit, Attendance)
+        // ============================================================
         try {
             $dataAnswer = $this->dataService->getAnswer($message);
             if ($dataAnswer) {
+                $this->logAnalytics($message, 'data', $this->detectIntentFromMessage($lower), $startTime, true);
                 return $this->saveAndRespond($request, $message, $dataAnswer, 'data');
             }
         } catch (\Exception $e) {
             Log::warning('Data error: ' . $e->getMessage());
         }
 
-        // --- Step 3: Forecasting ---
-        if (stripos($message, 'forecast') !== false || stripos($message, 'predict') !== false) {
+        // ============================================================
+        // 🟢 STEP 4: FORECASTING
+        // ============================================================
+        if (stripos($lower, 'forecast') !== false || stripos($lower, 'predict') !== false) {
             try {
                 $forecast = $this->forecastService->forecast($orgId);
                 if ($forecast) {
+                    $this->logAnalytics($message, 'forecast', 'forecast', $startTime, true);
                     return $this->saveAndRespond($request, $message, $forecast, 'forecast');
                 }
             } catch (\Exception $e) {
@@ -129,23 +204,38 @@ class AIController extends Controller
             }
         }
 
-        // --- Step 4: Anomaly Detection ---
-        if (stripos($message, 'anomaly') !== false || stripos($message, 'unusual') !== false) {
+        // ============================================================
+        // 🟢 STEP 5: ANOMALY DETECTION
+        // ============================================================
+        if (stripos($lower, 'anomaly') !== false || stripos($lower, 'unusual') !== false) {
             try {
                 $anomalies = $this->anomalyService->check($orgId);
                 $response = "🔍 **Detected Anomalies:**\n" . ($anomalies ? implode("\n", $anomalies) : "✅ No anomalies found.");
+                $this->logAnalytics($message, 'anomaly', 'anomaly', $startTime, true);
                 return $this->saveAndRespond($request, $message, $response, 'anomaly');
             } catch (\Exception $e) {
                 Log::warning('Anomaly error: ' . $e->getMessage());
             }
         }
 
-        // --- Step 5: Fallback to Ollama ---
+        // ============================================================
+        // 🟢 STEP 6: OLLAMA (Fallback)
+        // ============================================================
         $conversation = $this->getOrCreateConversation($request, $userId, $orgId);
         $history = $this->getConversationHistory($conversation->id);
 
+        // Heavy query → Queue
+        if (strlen($message) > 100 || stripos($lower, 'analyze') !== false) {
+            dispatch(new AIProcessJob($conversation->id, $message, $userId));
+            $this->logAnalytics($message, 'queue', 'heavy', $startTime, true);
+            return response()->json([
+                'conversation_id' => $conversation->id,
+                'status' => 'processing',
+                'message' => 'Your question is being processed. I\'ll respond shortly.',
+            ]);
+        }
+
         try {
-            // 🔥 Phase 3: Intent Scoring System
             $cacheKey = 'ai_intent_scores_' . md5($message);
             $scores = Cache::remember($cacheKey, 300, function() use ($message) {
                 return $this->intentScorer->score($message);
@@ -167,10 +257,8 @@ class AIController extends Controller
             $context = ['organization' => auth()->user()->organization->name ?? 'Your Business', 'metrics' => []];
         }
 
-        // --- Phase 2: Build Module-Specific Prompt ---
         try {
             $systemPrompt = $this->promptManager->getSystemPrompt($bestIntent, $context);
-
             $historyText = '';
             foreach ($history as $msg) {
                 $role = $msg['role'] === 'user' ? 'User' : 'Assistant';
@@ -186,14 +274,17 @@ class AIController extends Controller
             }
 
             if (empty($aiResponse) || strpos($aiResponse, 'Error') !== false) {
-                throw new \Exception('Empty or error response from Ollama');
+                throw new \Exception('Empty or error response');
             }
         } catch (\Exception $e) {
             Log::error('Ollama error: ' . $e->getMessage());
             $aiResponse = 'Sorry, I encountered an error. Please try again.';
+            $this->logAnalytics($message, 'error', $bestIntent, $startTime, false, $e->getMessage());
+            return $this->saveAndRespond($request, $message, $aiResponse, 'error');
         }
 
-        // Save assistant message
+        $this->logAnalytics($message, 'ollama', $bestIntent, $startTime, true);
+
         Message::create([
             'conversation_id' => $conversation->id,
             'role' => 'assistant',
@@ -208,23 +299,54 @@ class AIController extends Controller
     }
 
     /**
-     * Save user message and assistant response, then return JSON.
+     * Handle greetings separately
+     */
+    private function handleGreeting($request, $message, $startTime)
+    {
+        $greetingResponses = [
+            'hello' => "Hello! 👋 How can I help you today?\n\nTry asking me:\n- 📊 'Today ko sales kati cha?'\n- 📦 'Low stock items haru dekhau'\n- 💰 'Profit kati cha?'\n- 🎓 'Attendance summary dekhau'",
+            'hi' => "Hi there! 👋 What can I do for you?\n\nI can help with:\n- 📊 Sales reports\n- 📦 Stock management\n- 💰 Profit & expenses\n- 🎓 School attendance\n- 🍽️ Restaurant orders",
+            'hey' => "Hey! 👋 Ready to help with your business.\n\nQuick commands:\n- 'stock' → see all products\n- 'sales today' → today's sales\n- 'profit' → profit breakdown",
+            'namaste' => "Namaste! 🙏 How can I assist you with your business today?",
+            'default' => "Hello! 👋 Ask me anything about your business — sales, stock, profit, attendance, or restaurant orders.",
+        ];
+
+        $lower = strtolower(trim($message));
+        $response = $greetingResponses[$lower] ?? $greetingResponses['default'];
+
+        $this->logAnalytics($message, 'greeting', 'greeting', $startTime, true);
+        return $this->saveAndRespond($request, $message, $response, 'greeting');
+    }
+
+    /**
+     * Detect intent from message for analytics
+     */
+    private function detectIntentFromMessage($lower)
+    {
+        if (stripos($lower, 'stock') !== false || stripos($lower, 'inventory') !== false) return 'inventory';
+        if (stripos($lower, 'sales') !== false || stripos($lower, 'sale') !== false) return 'sales';
+        if (stripos($lower, 'profit') !== false || stripos($lower, 'loss') !== false) return 'financial';
+        if (stripos($lower, 'attendance') !== false || stripos($lower, 'student') !== false) return 'school';
+        if (stripos($lower, 'order') !== false || stripos($lower, 'table') !== false) return 'restaurant';
+        if (stripos($lower, 'forecast') !== false || stripos($lower, 'predict') !== false) return 'forecast';
+        return 'general';
+    }
+
+    /**
+     * Save user message and assistant response
      */
     private function saveAndRespond($request, $message, $response, $source)
     {
         $userId = auth()->id();
         $orgId = auth()->user()->organization_id;
-
         $conversation = $this->getOrCreateConversation($request, $userId, $orgId);
 
-        // Save user message
         Message::create([
             'conversation_id' => $conversation->id,
             'role' => 'user',
             'content' => $message,
         ]);
 
-        // Save assistant message with source metadata
         Message::create([
             'conversation_id' => $conversation->id,
             'role' => 'assistant',
@@ -239,7 +361,7 @@ class AIController extends Controller
     }
 
     /**
-     * Get or create a conversation.
+     * Get or create conversation
      */
     private function getOrCreateConversation($request, $userId, $orgId)
     {
@@ -258,7 +380,7 @@ class AIController extends Controller
     }
 
     /**
-     * Get recent conversation history (last 5 messages) for context.
+     * Get conversation history (last 5 messages)
      */
     private function getConversationHistory($conversationId)
     {
@@ -271,7 +393,39 @@ class AIController extends Controller
             ->toArray();
     }
 
-    // ========== EXISTING METHODS (unchanged) ==========
+    /**
+     * Log analytics
+     */
+    private function logAnalytics($message, $source, $intent, $startTime, $success, $error = null)
+    {
+        try {
+            if ($this->analyticsService) {
+                $this->analyticsService->log([
+                    'source' => $source,
+                    'intent' => $intent,
+                    'query' => $message,
+                    'response_time_ms' => (int) ((microtime(true) - $startTime) * 1000),
+                    'success' => $success,
+                    'error_message' => $error,
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::warning('Analytics logging failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Convert markdown [text](url) to HTML <a> tags
+     * (Used for demo responses to make links clickable)
+     */
+    private function markdownToHtml(string $text): string
+    {
+        $pattern = '/\[([^\]]+)\]\(([^)]+)\)/';
+        $replacement = '<a href="$2" class="text-blue-600 font-semibold hover:underline" target="_blank">$1</a>';
+        return preg_replace($pattern, $replacement, $text);
+    }
+
+    // ========== EXISTING METHODS ==========
 
     public function conversation($id)
     {
@@ -309,5 +463,14 @@ class AIController extends Controller
         })->count();
 
         return view('ai.dashboard', compact('insights', 'conversations', 'totalChats', 'totalMessages'));
+    }
+
+    public function exportConversations(Request $request)
+    {
+        if (!class_exists(ConversationExport::class)) {
+            return redirect()->back()->with('error', 'Export feature not available.');
+        }
+        $export = new ConversationExport($request->user_id);
+        return Excel::download($export, 'ai_conversations_' . date('Y-m-d') . '.xlsx');
     }
 }

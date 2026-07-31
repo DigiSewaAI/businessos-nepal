@@ -5,19 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\OrganizationSubscription; // <-- ADD THIS
+use App\Models\OrganizationSubscription;
 
 class Organization extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name', 'slug', 'email', 'phone', 'address',
-        'logo', 'settings', 'status', 'created_by', 'updated_by'
+        'name', 'slug', 'business_type', 'address', 'phone', 'email',
+        'logo', 'plan_id', 'trial_ends_at', 'currency', 'timezone',
+        'settings',
+        'status',
+        'created_by', 'updated_by',
+        // ✅ NEW: Phase A Industry fields
+        'industry',
+        'business_category',
     ];
 
     protected $casts = [
         'settings' => 'array',
+        'trial_ends_at' => 'datetime',
+        // ✅ NEW: ensure industry and business_category are strings
+        'industry' => 'string',
+        'business_category' => 'string',
     ];
 
     // Relationships
@@ -51,5 +61,31 @@ class Organization extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
+    }
+
+    /**
+     * ✅ NEW: Helper accessor for backward compatibility.
+     * Existing organizations without industry get 'retail' as fallback.
+     */
+    public function getIndustryAttribute($value)
+    {
+        return $value ?? 'retail';
+    }
+
+    /**
+     * ✅ NEW: Optional helper for getting business category label.
+     */
+    public function getBusinessCategoryLabelAttribute()
+    {
+        $categories = config('businessos.industries.' . $this->industry . '.business_categories', []);
+        return $categories[$this->business_category] ?? $this->business_category ?? 'General';
+    }
+
+    /**
+     * ✅ NEW: Check if organization has a specific industry.
+     */
+    public function isIndustry(string $industry): bool
+    {
+        return $this->industry === $industry;
     }
 }

@@ -6,17 +6,23 @@ use App\Services\AI\Agent\Tools\StockTool;
 use App\Services\AI\Agent\Tools\SalesTool;
 use App\Services\AI\Agent\Tools\CreateInvoiceTool;
 use App\Services\AI\OllamaService;
+use App\Services\AI\Agent\PermissionGate; // <-- Added for Phase 5
 
 class AgentOrchestrator
 {
     protected $planner;
     protected $ollama;
     protected $tools = [];
+    protected $permissionGate; // <-- New property
 
-    public function __construct(Planner $planner, OllamaService $ollama)
-    {
+    public function __construct(
+        Planner $planner,
+        OllamaService $ollama,
+        PermissionGate $permissionGate // <-- Injected
+    ) {
         $this->planner = $planner;
         $this->ollama = $ollama;
+        $this->permissionGate = $permissionGate; // <-- Assign
 
         // Register all tools
         $this->registerTool(new StockTool());
@@ -30,12 +36,20 @@ class AgentOrchestrator
         $this->planner->register($tool);
     }
 
-    public function execute(string $message): string
+    public function execute(string $message): ?string
     {
         $plan = $this->planner->plan($message);
 
         if ($plan['intent'] === 'unknown') {
             return null; // Fallback to regular AI
+        }
+
+        // ✅ Permission check for actions
+        if ($plan['intent'] === 'action') {
+            $action = $plan['tool'];
+            if (!$this->permissionGate->canExecute($action)) {
+                return "⚠️ You don't have permission to perform this action. Please contact your manager.";
+            }
         }
 
         // Single tool execution

@@ -4,7 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use App\Http\Middleware\CheckPlanLimits; // <-- ADD THIS LINE
+use App\Http\Middleware\CheckPlanLimits;      // <-- Existing
+use App\Http\Middleware\CheckOnboarding;     // <-- ADD THIS LINE
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,7 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Register middleware aliases
         $middleware->alias([
-            'plan.limits' => CheckPlanLimits::class,
+            'plan.limits' => CheckPlanLimits::class,      // existing
+            'check.onboarding' => CheckOnboarding::class, // NEW
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

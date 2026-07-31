@@ -47,90 +47,127 @@
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8">
             <form method="POST" action="{{ route('register') }}">
                 @csrf
-
-                <!-- Full Name -->
+                
+                {{-- Full Name --}}
                 <div class="mb-4">
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus 
-                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                        placeholder="Ashish Shrestha"
+                    <label class="block text-sm font-medium mb-1">Full Name *</label>
+                    <input type="text" name="name" value="{{ old('name') }}" 
+                           class="w-full border rounded-lg px-4 py-2 @error('name') border-red-500 @enderror" 
+                           placeholder="Ashish Shrestha" required>
                     @error('name')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <!-- Email -->
+                
+                {{-- Email --}}
                 <div class="mb-4">
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}" required 
-                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                        placeholder="your@email.com">
+                    <label class="block text-sm font-medium mb-1">Email Address *</label>
+                    <input type="email" name="email" value="{{ old('email') }}" 
+                           class="w-full border rounded-lg px-4 py-2 @error('email') border-red-500 @enderror" 
+                           placeholder="your@email.com" required>
                     @error('email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                {{-- Organization Name --}}
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Organization Name *</label>
+                    <input type="text" name="org_name" value="{{ old('org_name') }}" 
+                           class="w-full border rounded-lg px-4 py-2 @error('org_name') border-red-500 @enderror" 
+                           placeholder="Shrestha Traders" required>
+                    @error('org_name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <!-- Organization Name -->
+                {{-- ✅ NEW: Industry Dropdown --}}
                 <div class="mb-4">
-                    <label for="organization_name" class="block text-sm font-medium text-gray-700 mb-1">Business / Organization Name</label>
-                    <input id="organization_name" type="text" name="organization_name" value="{{ old('organization_name') }}" required 
-                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                        placeholder="My Business">
-                    @error('organization_name')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <label class="block text-sm font-medium mb-1">Industry *</label>
+                    <select name="industry" id="industry" 
+                            class="w-full border rounded-lg px-4 py-2 @error('industry') border-red-500 @enderror" required>
+                        <option value="">{{ __('Select Industry') }}</option>
+                        @php
+                            $industries = app(\App\Services\IndustryService::class)->getIndustries();
+                        @endphp
+                        @foreach($industries as $key => $industry)
+                            <option value="{{ $key }}" {{ old('industry') == $key ? 'selected' : '' }}>
+                                {{ $industry['label'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('industry')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <!-- Phone -->
+                {{-- ✅ NEW: Business Category Dropdown --}}
                 <div class="mb-4">
-                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
-                    <input id="phone" type="text" name="phone" value="{{ old('phone') }}" 
-                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                        placeholder="9800000000">
+                    <label class="block text-sm font-medium mb-1">Business Category</label>
+                    <select name="business_category" id="business_category" 
+                            class="w-full border rounded-lg px-4 py-2 @error('business_category') border-red-500 @enderror">
+                        <option value="">{{ __('Select Business Category') }}</option>
+                        @php
+                            // Show categories for the default industry (retail) initially
+                            $defaultIndustry = 'retail';
+                            $categories = app(\App\Services\IndustryService::class)->getBusinessCategories($defaultIndustry);
+                        @endphp
+                        @foreach($categories as $key => $label)
+                            <option value="{{ $key }}" {{ old('business_category') == $key ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('business_category')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                {{-- Phone --}}
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Phone Number *</label>
+                    <input type="tel" name="phone" value="{{ old('phone') }}" 
+                           class="w-full border rounded-lg px-4 py-2 @error('phone') border-red-500 @enderror" 
+                           placeholder="9800000000" required>
                     @error('phone')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <!-- Password -->
+                
+                {{-- Password --}}
                 <div class="mb-4">
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input id="password" type="password" name="password" required 
-                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                        placeholder="••••••••">
+                    <label class="block text-sm font-medium mb-1">Password *</label>
+                    <input type="password" name="password" 
+                           class="w-full border rounded-lg px-4 py-2 @error('password') border-red-500 @enderror" 
+                           placeholder="••••••••" required>
+                    <p class="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
                     @error('password')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <!-- Confirm Password -->
-                <div class="mb-6">
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                    <input id="password_confirmation" type="password" name="password_confirmation" required 
-                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                        placeholder="••••••••">
+                
+                {{-- Confirm Password --}}
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Confirm Password *</label>
+                    <input type="password" name="password_confirmation" 
+                           class="w-full border rounded-lg px-4 py-2" 
+                           placeholder="••••••••" required>
                 </div>
-
-                <!-- Submit -->
-                <button type="submit" class="w-full gradient-bg text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]">
-                    <i class="fa-solid fa-user-plus mr-2"></i> Create Account & Start Free
+                
+                {{-- Terms --}}
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="terms" required class="mr-2">
+                        <span class="text-sm">I agree to the <a href="{{ route('pages.terms') }}" class="text-blue-600">Terms of Service</a> and <a href="{{ route('pages.privacy') }}" class="text-blue-600">Privacy Policy</a></span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+                    Create Account & Start Free
                 </button>
-
-                <!-- Login Link -->
-                <div class="text-center mt-6">
-                    <p class="text-sm text-gray-500">
-                        Already have an account? 
-                        <a href="{{ route('login') }}" class="text-teal-600 hover:text-teal-800 font-medium">
-                            Sign in here
-                        </a>
-                    </p>
-                </div>
-
-                <!-- Terms -->
-                <p class="text-center text-xs text-gray-400 mt-4">
-                    By signing up, you agree to our 
-                    <a href="#" class="text-teal-600 hover:underline">Terms of Service</a> and 
-                    <a href="#" class="text-teal-600 hover:underline">Privacy Policy</a>
+                
+                <p class="text-center text-sm text-gray-600 mt-4">
+                    Already have an account? <a href="{{ route('login') }}" class="text-blue-600">Sign in here</a>
                 </p>
             </form>
         </div>
@@ -140,6 +177,46 @@
             &copy; {{ date('Y') }} BusinessOS Nepal. All rights reserved.
         </p>
     </div>
+
+    {{-- ✅ JavaScript for dynamic Business Category update --}}
+    <script>
+        (function() {
+            // Pre‑load all categories from the backend (no extra API call)
+            const allCategories = @json(
+                collect(app(\App\Services\IndustryService::class)->getIndustries())
+                    ->mapWithKeys(fn($ind, $key) => [$key => $ind['business_categories'] ?? []])
+            );
+
+            const industrySelect = document.getElementById('industry');
+            const categorySelect = document.getElementById('business_category');
+
+            function updateCategories(industryKey) {
+                // Clear current options
+                categorySelect.innerHTML = '<option value="">{{ __("Select Business Category") }}</option>';
+                
+                const categories = allCategories[industryKey] || {};
+                for (const [key, label] of Object.entries(categories)) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = label;
+                    // If old value matches, select it
+                    if (key === '{{ old('business_category') }}') {
+                        option.selected = true;
+                    }
+                    categorySelect.appendChild(option);
+                }
+            }
+
+            // Initial update based on the current selected industry (or default to retail)
+            const initialIndustry = industrySelect.value || 'retail';
+            updateCategories(initialIndustry);
+
+            // Listen to industry change
+            industrySelect.addEventListener('change', function() {
+                updateCategories(this.value);
+            });
+        })();
+    </script>
 
 </body>
 </html>

@@ -168,6 +168,12 @@
                     </div>
                     <span class="text-sm font-medium text-gray-700">POS</span>
                 </a>
+                <a href="{{ route('products.create') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-teal-400 hover:shadow-md transition-all group">
+    <div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition">
+        <i class="fa-regular fa-box"></i>
+    </div>
+    <span class="text-sm font-medium text-gray-700">Add Product</span>
+</a>
                 <a href="{{ route('purchases.create') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-emerald-400 hover:shadow-md transition-all group">
                     <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
                         <i class="fa-solid fa-truck"></i>

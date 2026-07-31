@@ -27,7 +27,7 @@ class IntentScorer
         }
         
         // Sales scoring
-        if (preg_match('/sales|sell|revenue|income|bikri|bikri/, $lower)) {
+        if (preg_match('/sales|sell|revenue|income|bikri/', $lower)) {
             $scores['sales'] += 40;
         }
         if (preg_match('/today|this month|total|overview/', $lower)) {

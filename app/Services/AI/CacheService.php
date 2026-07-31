@@ -5,24 +5,33 @@ use Illuminate\Support\Facades\Cache;
 
 class CacheService
 {
-    public function remember($key, $ttl, $callback)
+    public function remember(string $key, $callback, int $ttl = 3600)
     {
-        $cacheKey = 'ai_' . md5($key);
-        return Cache::remember($cacheKey, $ttl, $callback);
+        return Cache::remember("ai_{$key}", $ttl, $callback);
     }
 
-    public function forget($key)
+    public function rememberUser(string $key, $callback, int $ttl = 300)
     {
-        Cache::forget('ai_' . md5($key));
+        $userId = auth()->id();
+        return Cache::remember("ai_user_{$userId}_{$key}", $ttl, $callback);
     }
 
-    public function clearAll()
+    public function forget(string $key)
     {
-        // Only clear AI cache keys
-        $keys = Cache::get('ai_cache_keys', []);
-        foreach ($keys as $key) {
-            Cache::forget($key);
-        }
-        Cache::forget('ai_cache_keys');
+        Cache::forget("ai_{$key}");
+    }
+
+    public function forgetUser(string $key)
+    {
+        $userId = auth()->id();
+        Cache::forget("ai_user_{$userId}_{$key}");
+    }
+
+    public function getStats(): array
+    {
+        return [
+            'hit_count' => Cache::get('ai_cache_hits', 0),
+            'miss_count' => Cache::get('ai_cache_misses', 0),
+        ];
     }
 }

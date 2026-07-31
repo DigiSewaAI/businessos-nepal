@@ -76,96 +76,166 @@
 <body class="font-sans antialiased bg-white">
 
     <!-- ============ NAVBAR ============ -->
-<nav x-data="{ open: false }" class="bg-white shadow-sm fixed w-full z-50 top-0 left-0 border-b border-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-24">
-            <!-- Logo -->
-            <div class="flex items-center">
-                <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                    <img src="{{ asset(branding('logo')) }}" alt="{{ branding('brand_name') }}" style="height: 90px; width: auto;">
-                    @if(branding('country_badge'))
-                        <span class="hidden md:inline-block text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">{{ branding('country_badge') }}</span>
-                    @endif
-                </a>
-            </div>
+    <nav x-data="{ open: false }" class="bg-white shadow-sm fixed w-full z-50 top-0 left-0 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-24">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{{ route('home') }}" class="flex items-center space-x-2">
+                        <img src="{{ asset(branding('logo')) }}" alt="{{ branding('brand_name') }}" style="height: 90px; width: auto;">
+                        @if(branding('country_badge'))
+                            <span class="hidden md:inline-block text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">{{ branding('country_badge') }}</span>
+                        @endif
+                    </a>
+                </div>
 
-            <!-- Desktop Nav -->
-            <div class="hidden md:flex items-center space-x-8">
-                <!-- Public Links (Always visible) -->
-                <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
-                <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
-                <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <!-- Public Links (Always visible) -->
+                    <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
+                    <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
+                    <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
+
+                    @auth
+                        <!-- ✅ Dashboard (Always visible for auth users) -->
+                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
+                        <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
+
+                        <!-- ✅ NEW: Organization Settings -->
+                        <a href="{{ route('organization.edit') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">
+                            <i class="fa-regular fa-building mr-1"></i> Org
+                        </a>
+
+                        <!-- ✅ NEW: Branches -->
+                        <a href="{{ route('branches.index') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">
+                            <i class="fa-regular fa-code-branch mr-1"></i> Branches
+                        </a>
+
+                        <!-- ✅ NEW: Search Products Link -->
+                        <a href="{{ route('products.search') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm flex items-center gap-1">
+                            <i class="fa-solid fa-search text-xs"></i> Search
+                        </a>
+
+                        <!-- ✅ AI Assistant Link with New Badge -->
+                        <a href="{{ route('ai.chat') }}" class="text-blue-600 hover:text-blue-800 transition font-medium text-sm flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+                            <i class="fa-regular fa-comment-dots text-blue-500"></i> AI
+                            <span class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full leading-none">New</span>
+                        </a>
+
+                        <!-- ✅ Plan Badge -->
+                        @php
+                            $plan = auth()->user()->organization->plan ?? null;
+                        @endphp
+                        @if($plan)
+                            <span class="text-xs font-medium bg-teal-100 text-teal-800 px-3 py-1 rounded-full">
+                                {{ $plan->name }}
+                            </span>
+                        @endif
+
+                        <!-- ✅ Upgrade Link (if on Starter) -->
+                        @if($plan && $plan->slug === 'starter')
+                            <a href="{{ route('pages.pricing') }}" class="text-xs font-semibold text-orange-600 hover:text-orange-800 underline">
+                                Upgrade
+                            </a>
+                        @endif
+
+                        <!-- Logout -->
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
+                                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
+                    @endauth
+
+                    <!-- ✅ Start Free Trial Button (Only for Guests) -->
+                    @guest
+                        <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">
+                            {{ branding('cta_button_text', 'Start Free') }}
+                        </a>
+                    @endguest
+                </div>
+
+                <!-- Mobile Toggle -->
+                <div class="flex items-center md:hidden">
+                    <button @click="open = !open" class="text-gray-500 hover:text-gray-700 focus:outline-none p-2">
+                        <i :class="open ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'" class="text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="open" x-transition.duration.300ms.opacity class="md:hidden bg-white border-b border-gray-100 py-4 px-4 shadow-lg">
+            <div class="flex flex-col space-y-3">
+                <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
+                <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Industries</a>
+                <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Pricing</a>
+                <hr class="border-gray-200">
 
                 @auth
-                    <!-- ✅ Dashboard (Always visible for auth users) -->
-                    <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
-                    <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
-
-                    <!-- ✅ AI Assistant Link with New Badge -->
-                    <a href="{{ route('ai.chat') }}" class="text-blue-600 hover:text-blue-800 transition font-medium text-sm flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
-                        <i class="fa-regular fa-comment-dots text-blue-500"></i> AI
-                        <span class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full leading-none">New</span>
+                    <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Dashboard</a>
+                    <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">POS</a>
+                    <a href="{{ route('organization.edit') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">
+                        <i class="fa-regular fa-building mr-2"></i> Organization Settings
                     </a>
+                    <a href="{{ route('branches.index') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">
+                        <i class="fa-regular fa-code-branch mr-2"></i> Branches
+                    </a>
+                    <a href="{{ route('products.search') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+                        <i class="fa-solid fa-search"></i> Search Products
+                    </a>
+                    <a href="{{ route('ai.chat') }}" class="text-blue-600 hover:text-blue-800 transition font-medium px-3 py-2 rounded-lg hover:bg-blue-50 flex items-center gap-2">
+                        <i class="fa-regular fa-comment-dots text-blue-500"></i> AI Assistant
+                        <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full">New</span>
+                    </a>
+                    
+                    <!-- Plan & Upgrade -->
+                    @php
+                        $plan = auth()->user()->organization->plan ?? null;
+                    @endphp
+                    @if($plan)
+                        <div class="flex items-center justify-between px-3 py-2 bg-teal-50 rounded-lg">
+                            <span class="text-sm font-medium text-teal-800">Plan: {{ $plan->name }}</span>
+                            @if($plan->slug === 'starter')
+                                <a href="{{ route('pages.pricing') }}" class="text-xs font-semibold text-orange-600 hover:text-orange-800 underline">Upgrade</a>
+                            @endif
+                        </div>
+                    @endif
 
-                    <!-- Logout -->
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
-                        <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
-                            <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
+                        <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium px-3 py-2 text-left w-full rounded-lg hover:bg-red-50">
+                            <i class="fa-solid fa-sign-out-alt mr-2"></i> Logout
                         </button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
+                    <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Login</a>
+                    <a href="{{ route('register') }}" class="gradient-bg text-white text-center px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-xl transition-all">{{ branding('cta_button_text', 'Start Free') }}</a>
                 @endauth
+            </div>
+        </div>
+    </nav>
 
-                <!-- ✅ Start Free Trial Button (Only for Guests) -->
-                @guest
-                    <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">
-                        {{ branding('cta_button_text', 'Start Free') }}
+    <!-- ============ ONBOARDING WARNING BAR ============ -->
+    @auth
+        @if(!auth()->user()->onboarding_completed)
+            <div class="fixed top-24 left-0 right-0 z-40 bg-amber-50 border-b border-amber-200 px-4 py-2 text-center">
+                <p class="text-sm text-amber-800">
+                    <i class="fa-regular fa-circle-exclamation mr-2"></i>
+                    Please complete your business setup to continue.
+                    <a href="{{ route('onboarding') }}" class="font-semibold text-amber-600 hover:text-amber-800 underline ml-1">
+                        Complete Setup Now
                     </a>
-                @endguest
+                </p>
             </div>
-
-            <!-- Mobile Toggle -->
-            <div class="flex items-center md:hidden">
-                <button @click="open = !open" class="text-gray-500 hover:text-gray-700 focus:outline-none p-2">
-                    <i :class="open ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'" class="text-xl"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div x-show="open" x-transition.duration.300ms.opacity class="md:hidden bg-white border-b border-gray-100 py-4 px-4 shadow-lg">
-        <div class="flex flex-col space-y-3">
-            <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
-            <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Industries</a>
-            <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Pricing</a>
-            <hr class="border-gray-200">
-
-            @auth
-                <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Dashboard</a>
-                <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">POS</a>
-                <a href="{{ route('ai.chat') }}" class="text-blue-600 hover:text-blue-800 transition font-medium px-3 py-2 rounded-lg hover:bg-blue-50 flex items-center gap-2">
-                    <i class="fa-regular fa-comment-dots text-blue-500"></i> AI Assistant
-                    <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full">New</span>
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium px-3 py-2 text-left w-full rounded-lg hover:bg-red-50">
-                        <i class="fa-solid fa-sign-out-alt mr-2"></i> Logout
-                    </button>
-                </form>
-            @else
-                <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Login</a>
-                <a href="{{ route('register') }}" class="gradient-bg text-white text-center px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-xl transition-all">{{ branding('cta_button_text', 'Start Free') }}</a>
-            @endauth
-        </div>
-    </div>
-</nav>
+        @endif
+    @endauth
 
     <!-- ============ MAIN CONTENT ============ -->
-    <main>
+    <main class="pt-24 @auth @if(!auth()->user()->onboarding_completed) pt-28 @endif @endauth">
         @yield('content')
     </main>
 

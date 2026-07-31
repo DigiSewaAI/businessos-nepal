@@ -5,8 +5,7 @@
 @section('content')
 
 <!-- ============ HERO SECTION ============ -->
-<section class="pt-32 pb-16 px-4 bg-gradient-to-br from-gray-50 via-white to-teal-50/30 overflow-hidden">
-    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+<section class="pt-24 pb-12 px-4 bg-gradient-to-br from-gray-50 via-white to-teal-50/30 overflow-hidden">    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         <!-- Left: Text -->
         <div class="space-y-6">
             <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium border border-blue-100">
@@ -18,15 +17,15 @@
                 <span class="text-gradient">Every Business.</span>
             </h1>
             <p class="text-lg text-gray-600 leading-relaxed max-w-lg">
-                Inventory, POS, Accounting, and Reports — {{ branding('hero_subtitle', 'everything your business needs to grow') }}
-                <span class="font-semibold text-teal-700">Free to start.</span>
-            </p>
+    Inventory, POS, Accounting, and Reports — everything your Nepali business needs to grow.
+    <span class="font-semibold text-teal-700">Start in minutes.</span>
+</p>
             <div class="flex flex-wrap gap-4 pt-2">
                 <a href="{{ route('register') }}" class="gradient-bg text-white px-8 py-3 rounded-xl text-lg font-semibold shadow-xl hover:shadow-2xl transition-all hover:scale-105 flex items-center gap-2">
                     {{ branding('cta_button_text', 'Start Free Trial') }} <i class="fa-solid fa-arrow-right"></i>
                 </a>
-                <a href="{{ route('ai.chat') }}" class="border border-gray-300 text-gray-700 px-8 py-3 rounded-xl text-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
-    <i class="fa-regular fa-comment-dots"></i> Ask AI
+                <a href="{{ route('ai.chat') }}" class="border-2 border-teal-300 bg-teal-50 text-teal-700 px-8 py-3 rounded-xl text-lg font-medium hover:bg-teal-100 hover:border-teal-400 hover:shadow-md transition-all flex items-center gap-2">
+    <i class="fa-regular fa-comment-dots"></i> Try AI Demo
 </a>
                 <a href="#features" class="border border-gray-300 text-gray-700 px-8 py-3 rounded-xl text-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
                     <i class="fa-regular fa-circle-play"></i> {{ branding('cta_alt_button_text', 'See How') }}
@@ -196,16 +195,17 @@
                 <input type="text" 
                        class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-gray-700 placeholder-gray-400 cursor-default" 
                        placeholder="Ask a question... e.g., 'What are my top products?'" readonly>
-                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition cursor-default opacity-80">
-                    <i class="fa-regular fa-paper-plane"></i> Ask
-                </button>
+                <button onclick="window.location.href='{{ route('ai.chat') }}'" 
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition cursor-pointer">
+    <i class="fa-regular fa-paper-plane"></i> Ask
+</button>
             </div>
-            <div class="text-xs text-gray-400 mt-3 flex flex-wrap justify-center gap-3">
-                <span class="bg-gray-100 px-2 py-1 rounded-full">💡 "Today's sales"</span>
-                <span class="bg-gray-100 px-2 py-1 rounded-full">💡 "Low stock items"</span>
-                <span class="bg-gray-100 px-2 py-1 rounded-full">💡 "Profit summary"</span>
-                <span class="bg-gray-100 px-2 py-1 rounded-full">💡 "Student attendance"</span>
-            </div>
+    <div class="text-xs mt-3 flex flex-wrap justify-center gap-3">
+    <span class="bg-gray-700 text-white px-3 py-1.5 rounded-full hover:bg-gray-600 transition cursor-default">💡 Today's sales</span>
+    <span class="bg-gray-700 text-white px-3 py-1.5 rounded-full hover:bg-gray-600 transition cursor-default">💡 Low stock items</span>
+    <span class="bg-gray-700 text-white px-3 py-1.5 rounded-full hover:bg-gray-600 transition cursor-default">💡 Profit summary</span>
+    <span class="bg-gray-700 text-white px-3 py-1.5 rounded-full hover:bg-gray-600 transition cursor-default">💡 Cash balance</span>
+</div>
         </div>
 
         <!-- CTA Button -->
@@ -318,48 +318,156 @@
 <section id="pricing" class="py-20 px-4 gradient-bg">
     <div class="max-w-7xl mx-auto text-center text-white">
         <h2 class="text-3xl md:text-5xl font-bold mb-4">Simple, transparent <span class="underline decoration-teal-300 decoration-4">pricing</span></h2>
-        <p class="text-blue-100 text-lg max-w-2xl mx-auto mb-12">Start free, scale as you grow.</p>
+        <p class="text-blue-100 text-lg max-w-2xl mx-auto mb-4">Choose the plan that fits your business. Upgrade anytime as you grow.</p>
 
-        <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <!-- Starter -->
-            <div class="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 text-center">
-                <h3 class="text-xl font-bold text-white">Starter</h3>
-                <p class="text-4xl font-extrabold mt-4 text-white">Free</p>
-                <ul class="text-sm text-blue-100 space-y-2 mt-6 text-left">
-                    <li><i class="fa-solid fa-check text-teal-300 mr-2"></i> 100 Products</li>
-                    <li><i class="fa-solid fa-check text-teal-300 mr-2"></i> 1 Branch</li>
-                    <li><i class="fa-solid fa-check text-teal-300 mr-2"></i> Basic Reports</li>
-                </ul>
-                <a href="{{ route('register') }}" class="block mt-8 bg-white text-blue-700 py-2.5 px-6 rounded-lg font-semibold hover:bg-gray-100 transition">{{ branding('cta_button_text', 'Get Started') }}</a>
+        {{-- Monthly/Yearly Toggle --}}
+        <div x-data="{ yearly: false }">
+            <div class="flex flex-col items-center mb-10">
+                <span class="inline-block bg-green-500 text-white text-[10px] font-bold px-3 py-0.5 rounded-full mb-2 tracking-wider">
+                    SAVE 30%
+                </span>
+                <div class="inline-flex rounded-xl border border-white/20 bg-white/10 p-1 backdrop-blur-sm">
+                    <button @click="yearly = false" 
+                            :class="{'bg-white text-blue-700 shadow-md': !yearly, 'bg-transparent text-white hover:bg-white/10': yearly}"
+                            class="px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200">
+                        Monthly
+                    </button>
+                    <button @click="yearly = true" 
+                            :class="{'bg-white text-blue-700 shadow-md': yearly, 'bg-transparent text-white hover:bg-white/10': !yearly}"
+                            class="px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200">
+                        Yearly
+                    </button>
+                </div>
             </div>
 
-            <!-- Pro -->
-            <div class="bg-white rounded-2xl p-8 text-gray-900 shadow-2xl transform md:scale-105 border-4 border-teal-300 relative">
-                <span class="absolute -top-3 right-4 bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full">Popular</span>
-                <h3 class="text-xl font-bold">Pro</h3>
-                <p class="text-4xl font-extrabold mt-4 text-gray-800">Rs. 999<span class="text-sm font-normal text-gray-400">/mo</span></p>
-                <ul class="text-sm text-gray-600 space-y-2 mt-6 text-left">
-                    <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Unlimited Products</li>
-                    <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Unlimited Branches</li>
-                    <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Advanced Reports</li>
-                    <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Priority Support</li>
-                </ul>
-                <a href="{{ route('register') }}" class="block mt-8 gradient-bg text-white py-2.5 px-6 rounded-lg font-semibold hover:shadow-lg transition">{{ branding('cta_button_text', 'Start Trial') }}</a>
+            {{-- Plans Grid --}}
+            <div class="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+
+                @php
+$plans = \App\Models\Plan::where('is_active', true)->orderBy('sort_order')->get();
+                @endphp
+
+                @foreach($plans as $plan)
+                    @php
+                        $isEnterprise = $plan->slug === 'enterprise';
+                        $cardBg = $isEnterprise ? 'bg-white/5' : 'bg-white/10';
+                        $borderClass = $plan->is_popular ? 'border-2 border-yellow-400 shadow-xl shadow-yellow-500/20' : 'border border-white/20';
+                        $textColor = $isEnterprise ? 'text-gray-200' : 'text-white';
+                        $textMuted = $isEnterprise ? 'text-gray-400' : 'text-blue-100';
+                    @endphp
+
+                    <div class="{{ $cardBg }} backdrop-blur-sm p-6 rounded-2xl {{ $borderClass }} text-center transition-all hover:bg-white/20 hover:scale-105">
+
+                        {{-- Popular Badge --}}
+                        @if($plan->is_popular)
+                            <span class="inline-block bg-yellow-400 text-gray-900 text-[10px] font-bold px-3 py-1 rounded-full mb-2">⭐ MOST POPULAR</span>
+                        @endif
+
+                        {{-- Plan Name --}}
+                        <h3 class="text-xl font-bold {{ $textColor }}">{{ $plan->name }}</h3>
+
+                        {{-- Price --}}
+                        <div class="mt-4">
+                            <template x-if="!yearly">
+                                <div>
+                                    @if($plan->price_monthly === null)
+                                        <span class="text-3xl font-bold {{ $textColor }}">Custom</span>
+                                    @elseif($plan->price_monthly === 0)
+                                        <span class="text-4xl font-extrabold text-white">Free</span>
+                                    @else
+                                        <span class="text-4xl font-extrabold text-white">Rs. {{ number_format($plan->price_monthly) }}</span>
+                                        <span class="text-sm text-blue-200">/mo</span>
+                                    @endif
+                                </div>
+                            </template>
+                            <template x-if="yearly">
+                                <div>
+                                    @if($plan->price_yearly === null)
+                                        <span class="text-3xl font-bold {{ $textColor }}">Custom</span>
+                                    @elseif($plan->price_yearly === 0)
+                                        <span class="text-4xl font-extrabold text-white">Free</span>
+                                    @else
+                                        <span class="text-4xl font-extrabold text-white">Rs. {{ number_format($plan->price_yearly) }}</span>
+                                        <span class="text-sm text-blue-200">/yr</span>
+                                        <div class="text-xs text-green-300 font-medium">({{ number_format($plan->price_yearly / 12) }}/mo)</div>
+                                    @endif
+                                </div>
+                            </template>
+                        </div>
+
+                        {{-- Features (Short & Scannable for Homepage) --}}
+                        <ul class="text-sm {{ $textMuted }} space-y-2 mt-4 text-left">
+                            @if($plan->slug === 'lite')
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> 300 Products</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> 1 Branch</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> 3 Users</li>
+                            @elseif($plan->slug === 'pro')
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> Unlimited Products</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> 3 Branches</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> 20 Users</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> Purchase Module</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> Finance Module</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> AI Assistant</li>
+                            @elseif($plan->slug === 'business')
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> 10 Branches</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> 100 Users</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> Advanced AI</li>
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> Priority Support</li>
+                            @elseif($plan->slug === 'enterprise')
+                                <li><i class="fa-regular fa-circle-check text-teal-300 mr-2"></i> Tailored Business Solution</li>
+                            @endif
+                        </ul>
+
+                        {{-- CTA Button --}}
+                        <div class="mt-6">
+                            @if($plan->slug === 'lite')
+                                <a href="{{ route('register') }}" class="block bg-white text-blue-700 py-2.5 px-4 rounded-lg font-semibold hover:bg-gray-100 transition">Choose Lite</a>
+                            @elseif($plan->slug === 'pro')
+                                <a href="{{ route('register') }}" class="block bg-white text-blue-700 py-2.5 px-4 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg">Start Free Trial</a>
+                            @elseif($plan->slug === 'business')
+                                <a href="{{ route('register') }}" class="block bg-white/20 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-white/30 transition border border-white/30">Start Free Trial</a>
+                            @else
+                                <a href="{{ route('pages.contact') }}" class="block bg-white/10 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-white/20 transition border border-white/20">Contact Sales</a>
+                            @endif
+                        </div>
+
+                        {{-- Trial Note --}}
+                        @if($plan->trial_days > 0)
+                            <p class="text-[10px] text-blue-200 text-center mt-2">{{ $plan->trial_days }}-day free trial. No card required.</p>
+                        @endif
+                    </div>
+                @endforeach
+
             </div>
 
-            <!-- Enterprise -->
-            <div class="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 text-center">
-                <h3 class="text-xl font-bold text-white">Enterprise</h3>
-                <p class="text-4xl font-extrabold mt-4 text-white">Custom</p>
-                <ul class="text-sm text-blue-100 space-y-2 mt-6 text-left">
-                    <li><i class="fa-solid fa-check text-teal-300 mr-2"></i> Everything in Pro</li>
-                    <li><i class="fa-solid fa-check text-teal-300 mr-2"></i> Dedicated Support</li>
-                    <li><i class="fa-solid fa-check text-teal-300 mr-2"></i> Custom Integrations</li>
-                </ul>
-                <a href="#" class="block mt-8 bg-white text-blue-700 py-2.5 px-6 rounded-lg font-semibold hover:bg-gray-100 transition">Contact Us</a>
+            {{-- Trust Badges --}}
+            <div class="flex flex-wrap justify-center gap-4 mt-8 text-sm text-blue-100">
+                <span class="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
+                    <i class="fa-regular fa-calendar-check text-teal-300"></i> 14-Day Free Trial
+                </span>
+                <span class="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
+                    <i class="fa-regular fa-credit-card text-teal-300"></i> No Credit Card Required
+                </span>
+                <span class="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
+                    <i class="fa-regular fa-circle-check text-teal-300"></i> Cancel Anytime
+                </span>
+                <span class="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
+                    <i class="fa-regular fa-headset text-teal-300"></i> Local Nepali Support
+                </span>
             </div>
+
+            {{-- "View Full Pricing" CTA --}}
+            <div class="mt-10">
+                <p class="text-blue-100 text-sm mb-3">Need more details?</p>
+                <a href="{{ route('pages.pricing') }}" class="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-3 rounded-xl transition-all hover:scale-105 border border-white/20">
+                    View Full Pricing <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            {{-- Fair Use Policy Note (Short) --}}
+            <p class="text-blue-200 text-xs mt-6 opacity-70">* Unlimited features subject to <a href="{{ route('pages.terms') }}" class="text-teal-300 hover:underline">Fair Use Policy</a>.</p>
+
         </div>
-        <p class="text-blue-200 text-sm mt-8">* 14-day free trial on Pro. No credit card required.</p>
     </div>
 </section>
 

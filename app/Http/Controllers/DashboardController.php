@@ -13,6 +13,7 @@ use App\Models\Category;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\IndustryService; // ✅ NEW: Import for industry detection
 
 class DashboardController extends Controller
 {
@@ -40,6 +41,9 @@ class DashboardController extends Controller
         // ===== REGULAR USER DASHBOARD =====
         $organizationId = $user->organization_id;
         $today = Carbon::today();
+
+        // ✅ Phase B readiness: we can get industry but not using it yet
+        // $industry = $this->getOrganizationIndustry();
 
         // 1. Today's Total Sales
         $todaySales = Sale::where('organization_id', $organizationId)
@@ -116,5 +120,15 @@ class DashboardController extends Controller
             'topProducts',
             'monthlySales'
         ));
+    }
+
+    /**
+     * ✅ NEW: Get the industry of the current organization.
+     * Used in Phase B for dynamic dashboard & widgets.
+     */
+    private function getOrganizationIndustry(): string
+    {
+        $org = auth()->user()->organization;
+        return $org->industry ?? 'retail';
     }
 }

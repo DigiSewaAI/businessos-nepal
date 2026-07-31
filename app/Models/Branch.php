@@ -11,8 +11,16 @@ class Branch extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'organization_id', 'name', 'code', 'email', 'phone',
-        'address', 'is_main', 'status', 'created_by', 'updated_by'
+        'organization_id',
+        'name',
+        'address',
+        'phone',
+        'code',           // ✅ Add this
+        'is_main',        // ✅ Add this
+        'is_default',     // ✅ Already there
+        'status',         // ✅ Add this
+        'created_by',
+        'updated_by',
     ];
 
     public function organization()
@@ -28,5 +36,10 @@ class Branch extends Model
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }
