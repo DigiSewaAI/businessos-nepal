@@ -10,18 +10,29 @@ use App\Models\Organization;
 use App\Models\User;
 use App\Models\Branch;
 use App\Models\Category;
+use App\Services\Dashboard\DashboardFactory;
+use App\Services\Dashboard\Dashboards\SchoolDashboard;
+use App\Services\Dashboard\Dashboards\RetailDashboard;
+use App\Services\Dashboard\Dashboards\RestaurantDashboard;
+use App\Services\Dashboard\Dashboards\TravelDashboard;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Services\IndustryService; // ✅ NEW: Import for industry detection
 
 class DashboardController extends Controller
 {
+    protected $dashboardFactory;
+
+    public function __construct(DashboardFactory $dashboardFactory)
+    {
+        $this->dashboardFactory = $dashboardFactory;
+    }
+
     public function index()
     {
         $user = auth()->user();
 
-        // ===== SUPER ADMIN DASHBOARD =====
+        // ===== SUPER ADMIN =====
         if ($user->hasRole('Super Admin')) {
             $data = [
                 'total_organizations' => Organization::count(),
@@ -34,29 +45,73 @@ class DashboardController extends Controller
                 'recent_organizations' => Organization::latest()->limit(5)->get(),
                 'recent_users' => User::latest()->limit(5)->get(),
             ];
-
             return view('dashboard.super_admin', $data);
         }
 
-        // ===== REGULAR USER DASHBOARD =====
-        $organizationId = $user->organization_id;
+        // ===== REGULAR USER =====
+        $organization = $user->organization;
+        $organizationId = $organization->id;
+        $industry = $organization->industry ?? 'retail';
+
+        // ✅ If dynamic dashboard feature is OFF, use legacy dashboard
+        if (!config('businessos.features.dynamic_dashboard', false)) {
+            return $this->renderLegacyDashboard($organizationId);
+        }
+
+        // ✅ Temporary bypass: directly instantiate dashboard for specific industries
+        // This avoids the factory issue where 'school' falls back to 'retail'
+        $dashboard = null;
+        $view = null;
+        $data = [];
+
+        if ($industry === 'school') {
+            $dashboard = new SchoolDashboard($organizationId, $industry, $organization->business_category);
+            $data = $dashboard->getData();
+            $view = 'dashboard.school';
+        }
+        // Add other specific industries here if needed
+        // elseif ($industry === 'restaurant') { ... }
+
+        // If no specific industry matched, fallback to factory
+        if (!$dashboard) {
+            $dashboard = $this->dashboardFactory->create(
+                $organizationId,
+                $industry,
+                $organization->business_category
+            );
+            $data = $dashboard->getData();
+            $view = $dashboard->getView();
+        }
+
+        // ✅ If view doesn't exist, fallback to retail
+        if (!view()->exists($view)) {
+            $view = 'dashboard.retail';
+            // If we don't have data for retail, get it from factory
+            if ($industry !== 'retail') {
+                $retailDashboard = new RetailDashboard($organizationId, 'retail');
+                $data = $retailDashboard->getData();
+            }
+        }
+
+        return view($view, $data);
+    }
+
+    /**
+     * Legacy dashboard (exactly as before Phase B)
+     */
+    private function renderLegacyDashboard(int $organizationId)
+    {
         $today = Carbon::today();
 
-        // ✅ Phase B readiness: we can get industry but not using it yet
-        // $industry = $this->getOrganizationIndustry();
-
-        // 1. Today's Total Sales
         $todaySales = Sale::where('organization_id', $organizationId)
             ->whereDate('created_at', $today)
             ->where('status', 'completed')
             ->sum('total');
 
-        // 2. Today's Total Expenses
         $todayExpenses = Expense::where('organization_id', $organizationId)
             ->whereDate('created_at', $today)
             ->sum('amount');
 
-        // 3. Today's Profit
         $profitData = DB::table('sales')
             ->join('sale_lines', 'sales.id', '=', 'sale_lines.sale_id')
             ->join('products', 'sale_lines.product_id', '=', 'products.id')
@@ -71,7 +126,6 @@ class DashboardController extends Controller
             $todayProfit = $profitData->total_sales - $profitData->total_cost - $todayExpenses;
         }
 
-        // 4. Low Stock Count
         $productIds = Product::where('organization_id', $organizationId)->pluck('id');
         $lowStockCount = 0;
         foreach ($productIds as $productId) {
@@ -84,25 +138,22 @@ class DashboardController extends Controller
             }
         }
 
-        // 5. Cash Balance
         $cashBalance = DB::table('cashbook')
             ->where('organization_id', $organizationId)
             ->orderBy('created_at', 'desc')
             ->value('closing_balance') ?? 0;
 
-        // 6. Top Selling Products
         $topProducts = DB::table('sale_lines')
             ->join('products', 'sale_lines.product_id', '=', 'products.id')
             ->join('sales', 'sale_lines.sale_id', '=', 'sales.id')
             ->where('sales.organization_id', $organizationId)
             ->where('sales.status', 'completed')
-            ->select('products.name', DB::raw('SUM(sale_lines.quantity) as total_qty'), DB::raw('SUM(sale_lines.total) as total_amount'))
+            ->select('products.name', DB::raw('SUM(sale_lines.quantity) as total_qty'))
             ->groupBy('products.id', 'products.name')
             ->orderBy('total_qty', 'desc')
             ->limit(5)
             ->get();
 
-        // 7. Monthly Sales
         $monthlySales = Sale::where('organization_id', $organizationId)
             ->where('status', 'completed')
             ->whereYear('created_at', Carbon::now()->year)
@@ -120,15 +171,5 @@ class DashboardController extends Controller
             'topProducts',
             'monthlySales'
         ));
-    }
-
-    /**
-     * ✅ NEW: Get the industry of the current organization.
-     * Used in Phase B for dynamic dashboard & widgets.
-     */
-    private function getOrganizationIndustry(): string
-    {
-        $org = auth()->user()->organization;
-        return $org->industry ?? 'retail';
     }
 }

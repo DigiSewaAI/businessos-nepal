@@ -90,73 +90,64 @@
                 </div>
 
                 <!-- Desktop Nav -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <!-- Public Links (Always visible) -->
-                    <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
-                    <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
-                    <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
+<div class="hidden md:flex items-center space-x-8">
+    <!-- Public Links -->
+    <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
+    <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
+    <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
 
-                    @auth
-                        <!-- ✅ Dashboard (Always visible for auth users) -->
-                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Dashboard</a>
-                        <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">POS</a>
+    @auth
+        <!-- ✅ Dynamic Sidebar with Route Existence Check -->
+        @php
+            try {
+                $sidebar = app(App\Services\Sidebar\SidebarService::class)->getSidebar();
+            } catch (\Exception $e) {
+                $sidebar = [];
+            }
+        @endphp
+        @foreach($sidebar as $item)
+            @if(isset($item['permission']) && !auth()->user()->can($item['permission']))
+                @continue
+            @endif
+            {{-- ✅ Skip if route doesn't exist --}}
+            @if(!Route::has($item['route']))
+                @continue
+            @endif
+            <a href="{{ route($item['route']) }}" 
+               class="text-gray-600 hover:text-blue-700 transition font-medium text-sm flex items-center gap-1.5 {{ request()->routeIs($item['active']) ? 'text-blue-600' : '' }}">
+                <i class="fa-solid {{ $item['icon'] }}"></i>
+                {{ $item['label'] }}
+                @if(isset($item['badge']))
+                    <span class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full leading-none">{{ $item['badge'] }}</span>
+                @endif
+            </a>
+        @endforeach
 
-                        <!-- ✅ NEW: Organization Settings -->
-                        <a href="{{ route('organization.edit') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">
-                            <i class="fa-regular fa-building mr-1"></i> Org
-                        </a>
+        <!-- Org & Branches (Always visible) -->
+        <a href="{{ route('organization.edit') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">
+            <i class="fa-regular fa-building mr-1"></i> Org
+        </a>
+        <a href="{{ route('branches.index') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">
+            <i class="fa-regular fa-code-branch mr-1"></i> Branches
+        </a>
 
-                        <!-- ✅ NEW: Branches -->
-                        <a href="{{ route('branches.index') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">
-                            <i class="fa-regular fa-code-branch mr-1"></i> Branches
-                        </a>
+        <!-- Logout -->
+        <form method="POST" action="{{ route('logout') }}" class="inline">
+            @csrf
+            <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
+                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
+            </button>
+        </form>
+    @else
+        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
+    @endauth
 
-                        <!-- ✅ NEW: Search Products Link -->
-                        <a href="{{ route('products.search') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm flex items-center gap-1">
-                            <i class="fa-solid fa-search text-xs"></i> Search
-                        </a>
-
-                        <!-- ✅ AI Assistant Link with New Badge -->
-                        <a href="{{ route('ai.chat') }}" class="text-blue-600 hover:text-blue-800 transition font-medium text-sm flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
-                            <i class="fa-regular fa-comment-dots text-blue-500"></i> AI
-                            <span class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full leading-none">New</span>
-                        </a>
-
-                        <!-- ✅ Plan Badge -->
-                        @php
-                            $plan = auth()->user()->organization->plan ?? null;
-                        @endphp
-                        @if($plan)
-                            <span class="text-xs font-medium bg-teal-100 text-teal-800 px-3 py-1 rounded-full">
-                                {{ $plan->name }}
-                            </span>
-                        @endif
-
-                        <!-- ✅ Upgrade Link (if on Starter) -->
-                        @if($plan && $plan->slug === 'starter')
-                            <a href="{{ route('pages.pricing') }}" class="text-xs font-semibold text-orange-600 hover:text-orange-800 underline">
-                                Upgrade
-                            </a>
-                        @endif
-
-                        <!-- Logout -->
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
-                                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
-                            </button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
-                    @endauth
-
-                    <!-- ✅ Start Free Trial Button (Only for Guests) -->
-                    @guest
-                        <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">
-                            {{ branding('cta_button_text', 'Start Free') }}
-                        </a>
-                    @endguest
-                </div>
+    @guest
+        <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">
+            {{ branding('cta_button_text', 'Start Free') }}
+        </a>
+    @endguest
+</div>
 
                 <!-- Mobile Toggle -->
                 <div class="flex items-center md:hidden">
@@ -167,7 +158,7 @@
             </div>
         </div>
 
-        <!-- Mobile Menu -->
+        <!-- Mobile Menu (unchanged – keep as is) -->
         <div x-show="open" x-transition.duration.300ms.opacity class="md:hidden bg-white border-b border-gray-100 py-4 px-4 shadow-lg">
             <div class="flex flex-col space-y-3">
                 <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium px-3 py-2 rounded-lg hover:bg-gray-50">Features</a>
