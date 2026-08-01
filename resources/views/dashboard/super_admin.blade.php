@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Super Admin Dashboard')
 
 @section('content')
-<div class="pt-24 pb-12 px-4 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 min-h-screen">
+<div class="pt-4 pb-4 px-4 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 min-h-screen">
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">

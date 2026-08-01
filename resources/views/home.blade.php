@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- ============ HERO SECTION ============ -->
-<section class="pt-24 pb-12 px-4 bg-gradient-to-br from-gray-50 via-white to-teal-50/30 overflow-hidden">    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+<section class="pt-4 pb-4 px-4 bg-gradient-to-br from-gray-50 via-white to-teal-50/30 overflow-hidden">    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         <!-- Left: Text -->
         <div class="space-y-6">
             <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium border border-blue-100">

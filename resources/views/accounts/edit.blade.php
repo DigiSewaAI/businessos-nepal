@@ -3,7 +3,7 @@
 @section('title', 'Edit Account')
 
 @section('content')
-<div class="pt-24 pb-12 px-4 bg-gray-50 min-h-screen">
+<div class="pt-4 pb-4 px-4 bg-gray-50 min-h-screen">
     <div class="max-w-3xl mx-auto">
         <div class="flex items-center mb-6">
             <a href="{{ route('accounts.index') }}" class="text-gray-500 hover:text-gray-700 mr-4">

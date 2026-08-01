@@ -22,7 +22,7 @@ class SchoolMenu
                 'permission' => null,
             ],
             [
-                'label' => 'Teachers',
+                'label' => 'Teachers',      // ✅ यो थप्नुहोस्
                 'icon' => 'fa-chalkboard-user',
                 'route' => 'school.teachers.index',
                 'active' => 'school.teachers.*',

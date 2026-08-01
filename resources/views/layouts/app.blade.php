@@ -90,60 +90,59 @@
                 </div>
 
                 <!-- Desktop Nav -->
-<div class="hidden md:flex items-center space-x-8">
+<div class="hidden md:flex items-center space-x-4 lg:space-x-6">
     <!-- Public Links -->
-    <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Features</a>
-    <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Industries</a>
-    <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Pricing</a>
+    <a href="{{ route('pages.features') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm whitespace-nowrap">Features</a>
+    <a href="{{ route('pages.industries') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm whitespace-nowrap">Industries</a>
+    <a href="{{ route('pages.pricing') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm whitespace-nowrap">Pricing</a>
 
     @auth
-        <!-- ✅ Dynamic Sidebar with Route Existence Check -->
-        @php
-            try {
+        @if(config('businessos.features.dynamic_sidebar', false))
+            @php
                 $sidebar = app(App\Services\Sidebar\SidebarService::class)->getSidebar();
-            } catch (\Exception $e) {
-                $sidebar = [];
-            }
-        @endphp
-        @foreach($sidebar as $item)
-            @if(isset($item['permission']) && !auth()->user()->can($item['permission']))
-                @continue
-            @endif
-            {{-- ✅ Skip if route doesn't exist --}}
-            @if(!Route::has($item['route']))
-                @continue
-            @endif
-            <a href="{{ route($item['route']) }}" 
-               class="text-gray-600 hover:text-blue-700 transition font-medium text-sm flex items-center gap-1.5 {{ request()->routeIs($item['active']) ? 'text-blue-600' : '' }}">
-                <i class="fa-solid {{ $item['icon'] }}"></i>
-                {{ $item['label'] }}
-                @if(isset($item['badge']))
-                    <span class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full leading-none">{{ $item['badge'] }}</span>
+            @endphp
+            @foreach($sidebar as $item)
+                @if(isset($item['permission']) && !auth()->user()->can($item['permission']))
+                    @continue
                 @endif
-            </a>
-        @endforeach
+                @if(!Route::has($item['route']))
+                    @continue
+                @endif
+                <a href="{{ route($item['route']) }}" 
+                   class="text-gray-600 hover:text-blue-700 transition font-medium text-sm whitespace-nowrap flex items-center gap-1 {{ request()->routeIs($item['active']) ? 'text-blue-600' : '' }}">
+                    <i class="fa-solid {{ $item['icon'] }}"></i>
+                    {{ $item['label'] }}
+                    @if(isset($item['badge']))
+                        <span class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full leading-none">{{ $item['badge'] }}</span>
+                    @endif
+                </a>
+            @endforeach
+        @else
+            <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm whitespace-nowrap">Dashboard</a>
+            <a href="{{ route('sales.pos') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm whitespace-nowrap">POS</a>
+        @endif
 
         <!-- Org & Branches (Always visible) -->
-        <a href="{{ route('organization.edit') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">
+        <a href="{{ route('organization.edit') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm whitespace-nowrap">
             <i class="fa-regular fa-building mr-1"></i> Org
         </a>
-        <a href="{{ route('branches.index') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">
+        <a href="{{ route('branches.index') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm whitespace-nowrap">
             <i class="fa-regular fa-code-branch mr-1"></i> Branches
         </a>
 
         <!-- Logout -->
         <form method="POST" action="{{ route('logout') }}" class="inline">
             @csrf
-            <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm">
+            <button type="submit" class="text-red-600 hover:text-red-800 transition font-medium text-sm whitespace-nowrap">
                 <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
             </button>
         </form>
     @else
-        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm">Login</a>
+        <a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-700 transition font-medium text-sm whitespace-nowrap">Login</a>
     @endauth
 
     @guest
-        <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105">
+        <a href="{{ route('register') }}" class="gradient-bg text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all hover:scale-105 whitespace-nowrap">
             {{ branding('cta_button_text', 'Start Free') }}
         </a>
     @endguest

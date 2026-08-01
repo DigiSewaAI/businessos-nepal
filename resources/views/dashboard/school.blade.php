@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'School Dashboard')
 
 @section('content')
-<div class="pt-24 pb-12 px-4 bg-gray-50 min-h-screen">
+<div class="pt-4 pb-8 px-4 bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto">
         <!-- Welcome Header -->
         <div class="flex justify-between items-center mb-6">
@@ -149,38 +149,52 @@
         </div>
 
         <!-- Quick Actions (School Specific) -->
-<div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <i class="fa-solid fa-bolt text-yellow-500"></i> Quick Actions
-    </h3>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <a href="{{ route('school.students.create') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group">
-            <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
-                <i class="fa-solid fa-user-plus"></i>
+        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-yellow-500"></i> Quick Actions
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <!-- Admit Student -->
+                <a href="{{ route('school.students.create') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">Admit Student</span>
+                </a>
+
+                <!-- ✅ NEW: View Teachers -->
+                <a href="{{ route('school.teachers.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">View Teachers</span>
+                </a>
+
+                <!-- Mark Attendance -->
+                <a href="{{ route('school.attendance.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-emerald-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">Mark Attendance</span>
+                </a>
+
+                <!-- Generate Fee (✅ Fixed route) -->
+                <a href="{{ route('school.fees.generate', ['student' => 0]) }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">Generate Fee</span>
+                </a>
+
+                <!-- Manage Exams -->
+                <a href="{{ route('school.exams.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">Manage Exams</span>
+                </a>
             </div>
-            <span class="text-sm font-medium text-gray-700">Admit Student</span>
-        </a>
-        <a href="{{ route('school.attendance.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-emerald-400 hover:shadow-md transition-all group">
-            <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
-                <i class="fa-solid fa-clipboard-check"></i>
-            </div>
-            <span class="text-sm font-medium text-gray-700">Mark Attendance</span>
-        </a>
-        <!-- ✅ Fix: Changed route name from school.fees.invoices to school.fees.generate -->
-        <a href="{{ route('school.fees.generate', ['student' => 0]) }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:shadow-md transition-all group">
-            <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition">
-                <i class="fa-solid fa-receipt"></i>
-            </div>
-            <span class="text-sm font-medium text-gray-700">Generate Fee</span>
-        </a>
-        <a href="{{ route('school.exams.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all group">
-            <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition">
-                <i class="fa-solid fa-pen-to-square"></i>
-            </div>
-            <span class="text-sm font-medium text-gray-700">Manage Exams</span>
-        </a>
-    </div>
-</div>
+        </div>
     </div>
 </div>
 @endsection

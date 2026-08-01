@@ -3,13 +3,13 @@
 @section('title', 'AI Assistant')
 
 @section('content')
-<div class="pt-24 pb-12 px-4 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
-    <div class="max-w-5xl mx-auto">
-        <!-- Main Card with Glass Effect -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/50 overflow-hidden transition-all duration-300 hover:shadow-xl">
+<div class="pt-0 pb-4 px-4 bg-gradient-to-br from-gray-50 to-blue-50 h-screen overflow-hidden flex flex-col">
+        <div class="max-w-5xl mx-auto w-full flex-1 flex flex-col min-h-0">
+        <!-- Main Card with Glass Effect - using flex column to fill height -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/50 flex-1 flex flex-col overflow-hidden">
 
             <!-- Header with Gradient -->
-            <div class="px-6 py-5 bg-gradient-to-r from-blue-600 to-teal-500 flex justify-between items-center">
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-teal-500 flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
                         <i class="fa-regular fa-comment-dots text-white text-2xl"></i>
@@ -21,9 +21,11 @@
                 </div>
                 <div class="flex gap-2">
                     @auth
-    <a href="{{ route('ai.dashboard') }}" class="text-white/80 hover:text-white transition p-2 rounded-lg hover:bg-white/20" title="Dashboard">
-        <i class="fa-solid fa-chart-simple"></i>
-    </a>
+    @if(auth()->user()->organization)
+        <div class="text-center text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full inline-block shrink-0 mr-2">
+    Industry: <span class="font-semibold capitalize">{{ auth()->user()->organization->industry ?? 'retail' }}</span>
+</div>
+    @endif
 @endauth
                     <button onclick="newChat()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl font-semibold text-sm transition flex items-center gap-2 backdrop-blur-sm">
                         <i class="fa-solid fa-plus"></i> New Chat
@@ -33,7 +35,7 @@
 
             <!-- Demo Banner (shown only for guests) -->
             @if($isGuest ?? false)
-                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200 px-6 py-3 flex flex-wrap items-center justify-between gap-2">
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200 px-6 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
                     <div class="flex items-center gap-2 text-amber-700">
                         <i class="fa-solid fa-circle-info text-amber-500 animate-pulse"></i>
                         <span class="font-semibold text-sm">🔬 Demo Mode</span>
@@ -47,8 +49,8 @@
                 </div>
             @endif
 
-            <!-- Messages Container -->
-            <div id="chatMessages" class="h-[440px] overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50/80 to-white/80 relative scroll-smooth">
+            <!-- Messages Container - flex-1 to fill remaining space, overflow-y-auto -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50/80 to-white/80 scroll-smooth min-h-[200px]">
                 <!-- Initial empty state -->
                 <div id="initialMessage" class="text-center text-gray-400 text-sm py-16">
                     <div class="text-6xl mb-4 animate-bounce-slow">🤖</div>
@@ -73,55 +75,81 @@
                 </div>
             </div>
 
-            <!-- Input Area with Quick Actions -->
-            <div class="border-t border-gray-200/80 p-5 bg-white/70 backdrop-blur-sm">
+            <!-- Input Area - shrink-0 to stay at bottom -->
+            <div class="border-t border-gray-200/80 p-4 bg-white/70 backdrop-blur-sm shrink-0">
                 <form id="chatForm" class="flex gap-3" autocomplete="off">
                     @csrf
                     <input type="hidden" id="conversation_id" value="">
                     <div class="flex-1 relative">
                         <input type="text" id="userMessage"
-                            class="w-full px-5 py-3.5 pr-12 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white/90 transition shadow-sm hover:shadow-md"
+                            class="w-full px-5 py-3 pr-12 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white/90 transition shadow-sm hover:shadow-md"
                             placeholder="Ask a question... (e.g., 'Today's sales')" autocomplete="off">
                         <i class="fa-regular fa-face-smile absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg hover:text-blue-500 cursor-pointer transition"></i>
                     </div>
-                    <button type="submit" id="sendButton" class="gradient-bg text-white px-6 py-3.5 rounded-2xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm flex items-center gap-2">
+                    <button type="submit" id="sendButton" class="gradient-bg text-white px-6 py-3 rounded-2xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm flex items-center gap-2 shrink-0">
                         <i class="fa-solid fa-paper-plane"></i> Send
                     </button>
                 </form>
 
-                <!-- Quick Action Buttons -->
-                <div class="flex flex-wrap gap-2 mt-3">
-                    <button onclick="quickQuery('Today ko sales kati cha?')"
-                        class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-blue-100">
-                        📊 Today's Sales
-                    </button>
-                    <button onclick="quickQuery('Low stock items haru dekhau')"
-                        class="text-xs bg-red-50 hover:bg-red-100 text-red-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-red-100">
-                        📦 Low Stock
-                    </button>
-                    <button onclick="quickQuery('Profit kati cha?')"
-                        class="text-xs bg-green-50 hover:bg-green-100 text-green-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-green-100">
-                        💰 Profit
-                    </button>
-                    <button onclick="quickQuery('BusinessOS ko pricing kati ho?')"
-                        class="text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-purple-100">
-                        💎 Pricing
-                    </button>
-                    <button onclick="quickQuery('Attendence summary dekhau')"
-                        class="text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-orange-100">
-                        🎓 Attendance
-                    </button>
-                    <a href="{{ route('products.search') }}"
-                        class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-indigo-100">
-                        🔍 Search Products
-                    </a>
-                </div>
+      <!-- Quick Action Buttons - Industry Specific -->
+<div class="flex flex-wrap gap-2 mt-3">
+    @auth
+        @php
+            $industry = auth()->user()->organization->industry ?? 'retail';
+            $quickActions = [
+                'school' => [
+                    ['label' => '📊 Today\'s Attendance', 'query' => 'Attendance summary dekhau'],
+                    ['label' => '👨‍🎓 Total Students', 'query' => 'Total students kati chan?'],
+                    ['label' => '💰 Pending Fees', 'query' => 'Pending fees kati cha?'],
+                    ['label' => '📝 Upcoming Exams', 'query' => 'Upcoming exams dekhau'],
+                ],
+                'retail' => [
+                    ['label' => '📊 Today\'s Sales', 'query' => 'Today ko sales kati cha?'],
+                    ['label' => '📦 Low Stock', 'query' => 'Low stock items haru dekhau'],
+                    ['label' => '💰 Profit', 'query' => 'Profit kati cha?'],
+                ],
+                'restaurant' => [
+                    ['label' => '🍽️ Active Orders', 'query' => 'Active orders dekhau'],
+                    ['label' => '🪑 Available Tables', 'query' => 'Available tables dekhau'],
+                    ['label' => '💰 Today\'s Revenue', 'query' => 'Today ko revenue kati cha?'],
+                ],
+                'travel' => [
+                    ['label' => '📅 Total Bookings', 'query' => 'Total bookings kati chan?'],
+                    ['label' => '✈️ Active Packages', 'query' => 'Active packages dekhau'],
+                ],
+                    'ngo' => [
+        ['label' => '📊 Total Projects', 'query' => 'Total projects kati chan?'],
+        ['label' => '💰 Total Donations', 'query' => 'Total donations kati cha?'],
+    ],
+    'hospital' => [
+        ['label' => '🏥 Total Patients', 'query' => 'Total patients kati chan?'],
+        ['label' => '📋 Today\'s Appointments', 'query' => 'Today ko appointments kati chan?'],
+    ],
+    'manufacturing' => [
+        ['label' => '🏭 Total Products', 'query' => 'Total products kati chan?'],
+        ['label' => '📦 Pending Orders', 'query' => 'Pending orders kati chan?'],
+    ],
+    'service' => [
+        ['label' => '📋 Today\'s Appointments', 'query' => 'Today ko appointments kati chan?'],
+        ['label' => '👥 Active Clients', 'query' => 'Active clients kati chan?'],
+    ],
+];
+            $actions = $quickActions[$industry] ?? $quickActions['retail'];
+        @endphp
+        @foreach($actions as $action)
+            <button onclick="quickQuery('{{ $action['query'] }}')"
+                class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 border border-blue-100">
+                {{ $action['label'] }}
+            </button>
+        @endforeach
+    @endauth
+</div>
             </div>
         </div>
 
-        <!-- Sidebar: Recent Chats -->
-        <div class="mt-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-5 transition hover:shadow-xl">
-            <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+        <!-- Sidebar: Recent Chats (optional) -->
+        <div class="mt-4 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 shrink-0">
+            <h3 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                 <i class="fa-regular fa-clock text-blue-500"></i> Recent Chats
             </h3>
             <div id="recentChats" class="flex flex-wrap gap-2">
@@ -248,7 +276,6 @@
                 const isDemo = data.is_demo || false;
                 addMessage('assistant', data.response, isDemo);
 
-                // If needs login, show extra CTA
                 if (data.needs_login) {
                     const loginDiv = document.createElement('div');
                     loginDiv.className = 'flex justify-start mt-1';

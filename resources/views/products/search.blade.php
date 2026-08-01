@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Search Products')
 
 @section('content')
-<div class="pt-24 pb-12 px-4 bg-gray-50 min-h-screen">
+<div class="pt-4 pb-4 px-4 bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto">
         <div class="flex items-center gap-3 mb-6">
             <h1 class="text-2xl font-bold text-gray-900">🔍 Search Products</h1>

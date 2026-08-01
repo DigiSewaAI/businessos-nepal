@@ -35,10 +35,10 @@ class DashboardFactory
     public function create(int $organizationId, string $industry, ?string $businessCategory = null): DashboardInterface
     {
         $industry = $industry ?? 'retail';
-        
-        // If industry is not mapped, fallback to Retail
-        if (!isset($this->dashboards[$industry])) {
-            Log::warning("Industry '{$industry}' not found, falling back to Retail", [
+
+        // ✅ Check if industry is mapped AND the class actually exists
+        if (!isset($this->dashboards[$industry]) || !class_exists($this->dashboards[$industry])) {
+            Log::warning("Dashboard class for industry '{$industry}' not found, falling back to Retail", [
                 'organization_id' => $organizationId,
             ]);
             $industry = 'retail';
@@ -49,18 +49,21 @@ class DashboardFactory
     }
 
     /**
-     * Get all supported industries.
+     * Get all supported industries (only those with existing classes).
      */
     public function getSupportedIndustries(): array
     {
-        return array_keys($this->dashboards);
+        return array_filter(
+            array_keys($this->dashboards),
+            fn($industry) => $this->isSupported($industry)
+        );
     }
 
     /**
-     * Check if an industry is supported.
+     * Check if an industry is supported (mapped and class exists).
      */
     public function isSupported(string $industry): bool
     {
-        return isset($this->dashboards[$industry]);
+        return isset($this->dashboards[$industry]) && class_exists($this->dashboards[$industry]);
     }
 }

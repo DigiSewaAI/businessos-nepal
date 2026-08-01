@@ -26,6 +26,7 @@ use App\Http\Controllers\AI\AnomalyController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\School\TeacherController;
 
 // ========== PUBLIC / MARKETING PAGES ==========
 Route::get('/', function () {
@@ -159,6 +160,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('school')->name('school.')->group(function () {
         // Students
         Route::resource('students', StudentController::class);
+        Route::resource('teachers', TeacherController::class);
 
         // Fees
         Route::get('fees/invoices/{student}', [FeeController::class, 'generate'])->name('fees.generate');
@@ -177,19 +179,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ========== AI ROUTES (auth required) ==========
-    Route::prefix('ai')->name('ai.')->group(function () {
-        // Note: chat and message are PUBLIC (defined above)
-        // These are protected routes that need login
-        Route::get('/conversation/{id}', [AIController::class, 'conversation'])->name('conversation');
-        Route::delete('/conversation/{id}', [AIController::class, 'deleteConversation'])->name('conversation.delete');
-        Route::get('/dashboard', [AIController::class, 'dashboard'])->name('ai.dashboard');
-        Route::get('/forecast', [ForecastController::class, 'index'])->name('forecast');
-        Route::post('/forecast/generate', [ForecastController::class, 'generate'])->name('forecast.generate');
-        Route::get('/anomalies', [AnomalyController::class, 'index'])->name('anomalies');
-        Route::post('/anomalies/check', [AnomalyController::class, 'check'])->name('anomalies.check');
-        Route::post('/anomalies/{id}/read', [AnomalyController::class, 'markRead'])->name('anomalies.read');
-        Route::get('/export', [AIController::class, 'exportConversations'])->name('export');
-    });
+Route::prefix('ai')->name('ai.')->group(function () {
+    // Note: chat and message are PUBLIC (defined above)
+    // These are protected routes that need login
+    Route::get('/conversation/{id}', [AIController::class, 'conversation'])->name('conversation');
+    Route::delete('/conversation/{id}', [AIController::class, 'deleteConversation'])->name('conversation.delete');
+    
+    // ✅ Corrected: name is 'dashboard' (prefix 'ai.' makes it 'ai.dashboard')
+    Route::get('/dashboard', [AIController::class, 'dashboard'])->name('dashboard');
+    
+    Route::get('/forecast', [ForecastController::class, 'index'])->name('forecast');
+    Route::post('/forecast/generate', [ForecastController::class, 'generate'])->name('forecast.generate');
+    Route::get('/anomalies', [AnomalyController::class, 'index'])->name('anomalies');
+    Route::post('/anomalies/check', [AnomalyController::class, 'check'])->name('anomalies.check');
+    Route::post('/anomalies/{id}/read', [AnomalyController::class, 'markRead'])->name('anomalies.read');
+    Route::get('/export', [AIController::class, 'exportConversations'])->name('export');
+});
 });
 
 // ========== PUBLIC QR ROUTES (No auth) ==========

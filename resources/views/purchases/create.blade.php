@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'New Purchase - BusinessOS Nepal')
 
 @section('content')
-<div class="pt-24 pb-12 px-4 bg-gray-50 min-h-screen">
+<div class="pt-4 pb-4 px-4 bg-gray-50 min-h-screen">
     <div class="max-w-4xl mx-auto" x-data="purchaseForm()">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
             <h1 class="text-2xl font-bold text-gray-900 mb-6">New Purchase Order</h1>
