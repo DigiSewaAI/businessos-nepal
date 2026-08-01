@@ -228,6 +228,7 @@ Route::middleware(['auth', 'role:Super Admin'])->prefix('admin')->name('admin.')
     Route::resource('roles', App\Http\Controllers\RoleController::class);
     Route::resource('support', App\Http\Controllers\SupportController::class);
     Route::resource('cms', App\Http\Controllers\CMSController::class);
+Route::resource('branches', App\Http\Controllers\BranchController::class)->except(['show']);
 
     // Non-resource routes (only index)
     Route::get('analytics', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');

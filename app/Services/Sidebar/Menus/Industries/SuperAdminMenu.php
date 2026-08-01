@@ -16,7 +16,7 @@ class SuperAdminMenu
             ['label' => 'Roles', 'icon' => 'fa-user-shield', 'route' => 'admin.roles.index', 'active' => 'admin.roles.*'],
             ['label' => 'Support Tickets', 'icon' => 'fa-headset', 'route' => 'admin.support.index', 'active' => 'admin.support.*', 'badge' => 'New'],
             ['label' => 'CMS', 'icon' => 'fa-newspaper', 'route' => 'admin.cms.index', 'active' => 'admin.cms.*'],
-            ['label' => 'AI', 'icon' => 'fa-robot', 'route' => 'ai.dashboard', 'active' => 'ai.*', 'badge' => 'New'],  // AI dashboard route
+            ['label' => 'AI', 'icon' => 'fa-robot', 'route' => 'ai.dashboard', 'active' => 'ai.*', 'badge' => 'New'],
             ['label' => 'Analytics', 'icon' => 'fa-chart-line', 'route' => 'admin.analytics.index', 'active' => 'admin.analytics.*'],
             ['label' => 'Logs', 'icon' => 'fa-file-lines', 'route' => 'admin.logs.index', 'active' => 'admin.logs.*'],
             ['label' => 'Settings', 'icon' => 'fa-gear', 'route' => 'admin.settings.index', 'active' => 'admin.settings.*'],

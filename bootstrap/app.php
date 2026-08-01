@@ -4,8 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use App\Http\Middleware\CheckPlanLimits;      // <-- Existing
-use App\Http\Middleware\CheckOnboarding;     // <-- ADD THIS LINE
+use App\Http\Middleware\CheckPlanLimits;
+use App\Http\Middleware\CheckOnboarding;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,10 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Register middleware aliases
         $middleware->alias([
-            'plan.limits' => CheckPlanLimits::class,      // existing
-            'check.onboarding' => CheckOnboarding::class, // NEW
+            'plan.limits' => CheckPlanLimits::class,
+            'check.onboarding' => CheckOnboarding::class,
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

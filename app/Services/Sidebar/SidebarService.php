@@ -18,8 +18,8 @@ class SidebarService
     {
         $user = Auth::user();
 
-        // ✅ Super Admin check
-        if ($user->hasRole('Super Admin')) {
+        // ✅ Super Admin भए 'super_admin' industry पठाउने
+        if ($user && $user->hasRole('Super Admin')) {
             $industry = 'super_admin';
         } else {
             $organization = $user->organization;

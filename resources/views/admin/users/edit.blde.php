@@ -3,65 +3,89 @@
 @section('title', 'Edit User')
 
 @section('content')
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Edit User: {{ $user->name }}</h1>
-        <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back
-        </a>
-    </div>
+<div class="py-6 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="flex items-center gap-4 mb-6">
+            <a href="{{ route('admin.users.index') }}" class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-200">
+                        <i class="fa-solid fa-user-edit text-white text-sm"></i>
+                    </span>
+                    Edit User: {{ $user->name }}
+                </h1>
+                <p class="text-sm text-gray-500 mt-1">Update user details and permissions</p>
+            </div>
+        </div>
 
-    <div class="card">
-        <div class="card-body">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 overflow-hidden">
             <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
                 @csrf @method('PUT')
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="name" class="form-label">Full Name *</label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $user->name) }}" required>
-                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                <div class="p-6 space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1.5">Full Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition @error('name') border-red-500 @enderror"
+                                   required>
+                            @error('name') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">Email <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition @error('email') border-red-500 @enderror"
+                                   required>
+                            @error('email') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="email" class="form-label">Email *</label>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $user->email) }}" required>
-                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">Password (leave blank to keep current)</label>
+                            <input type="password" id="password" name="password"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition @error('password') border-red-500 @enderror">
+                            @error('password') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password</label>
+                            <input type="password" id="password_confirmation" name="password_confirmation"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition">
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="password" class="form-label">New Password (leave blank to keep current)</label>
-                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password">
-                        @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label for="organization_id" class="block text-sm font-medium text-gray-700 mb-1.5">Organization <span class="text-red-500">*</span></label>
+                            <select id="organization_id" name="organization_id"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition @error('organization_id') border-red-500 @enderror"
+                                    required>
+                                @foreach($organizations as $org)
+                                    <option value="{{ $org->id }}" {{ old('organization_id', $user->organization_id) == $org->id ? 'selected' : '' }}>{{ $org->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('organization_id') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="role" class="block text-sm font-medium text-gray-700 mb-1.5">Role <span class="text-red-500">*</span></label>
+                            <select id="role" name="role"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition @error('role') border-red-500 @enderror"
+                                    required>
+                                @foreach($roles as $role)
+                                    <option value="{{ $role->name }}" {{ old('role', $user->roles->first()->name ?? '') == $role->name ? 'selected' : '' }}>{{ ucfirst($role->name) }}</option>
+                                @endforeach
+                            </select>
+                            @error('role') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="password_confirmation" class="form-label">Confirm Password</label>
-                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="organization_id" class="form-label">Organization *</label>
-                        <select class="form-select @error('organization_id') is-invalid @enderror" id="organization_id" name="organization_id" required>
-                            <option value="">Select Organization</option>
-                            @foreach($organizations as $org)
-                                <option value="{{ $org->id }}" {{ old('organization_id', $user->organization_id) == $org->id ? 'selected' : '' }}>
-                                    {{ $org->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('organization_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="role" class="form-label">Role *</label>
-                        <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
-                            <option value="">Select Role</option>
-                            @foreach($roles as $role)
-                                <option value="{{ $role->name }}" {{ old('role', $user->roles->first()->name ?? '') == $role->name ? 'selected' : '' }}>
-                                    {{ $role->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary">Update User</button>
-                    </div>
+                </div>
+
+                <div class="px-6 py-4 bg-gray-50/80 border-t border-gray-200 flex items-center justify-end gap-3">
+                    <a href="{{ route('admin.users.index') }}" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">Cancel</a>
+                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white text-sm font-medium rounded-lg shadow-lg shadow-amber-200 transition-all hover:shadow-xl">
+                        <i class="fa-solid fa-check mr-1.5"></i> Update User
+                    </button>
                 </div>
             </form>
         </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\AuditLog;
+use Illuminate\Support\Facades\Schema; // 👈 यो line थप्नुहोस्
 
 class LogController extends Controller
 {
@@ -13,7 +14,10 @@ class LogController extends Controller
             ->latest()
             ->paginate(50);
 
-        $logTypes = AuditLog::select('action')->distinct()->pluck('action');
+        $logTypes = [];
+        if (Schema::hasColumn('audit_logs', 'action')) {
+            $logTypes = AuditLog::select('action')->distinct()->pluck('action');
+        }
 
         return view('admin.logs.index', compact('logs', 'logTypes'));
     }

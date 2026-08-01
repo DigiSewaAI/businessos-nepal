@@ -3,71 +3,136 @@
 @section('title', 'Support Tickets')
 
 @section('content')
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Support Tickets</h1>
-    </div>
+<div class="py-6 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-200">
+                        <i class="fa-solid fa-headset text-white text-sm"></i>
+                    </span>
+                    Support Tickets
+                </h1>
+                <p class="text-sm text-gray-500 mt-1">Manage all support tickets</p>
+            </div>
+            <a href="{{ route('admin.support.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-sm font-medium rounded-xl shadow-lg shadow-rose-200 transition-all duration-200 hover:shadow-xl hover:scale-[1.02]">
+                <i class="fa-solid fa-plus"></i>
+                Create Ticket
+            </a>
+        </div>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total</p>
+                <p class="text-xl font-bold text-gray-900">{{ $tickets->total() }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Open</p>
+                <p class="text-xl font-bold text-amber-600">{{ $tickets->where('status', 'open')->count() }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">In Progress</p>
+                <p class="text-xl font-bold text-blue-600">{{ $tickets->where('status', 'in_progress')->count() }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Resolved</p>
+                <p class="text-xl font-bold text-emerald-600">{{ $tickets->where('status', 'resolved')->count() }}</p>
+            </div>
+        </div>
 
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
+        <!-- Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Organization</th>
-                            <th>User</th>
-                            <th>Subject</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Actions</th>
+                        <tr class="bg-gradient-to-r from-gray-50 to-gray-100/80 border-b border-gray-200">
+                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Subject</th>
+                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Organization</th>
+                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Priority</th>
+                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3.5 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-100">
                         @forelse($tickets as $ticket)
-                        <tr>
-                            <td>#{{ $ticket->id }}</td>
-                            <td>{{ $ticket->organization->name ?? 'N/A' }}</td>
-                            <td>{{ $ticket->user->name ?? 'N/A' }}</td>
-                            <td>{{ Str::limit($ticket->subject, 30) }}</td>
-                            <td>
-                                <span class="badge bg-{{ $ticket->priority === 'urgent' ? 'danger' : ($ticket->priority === 'high' ? 'warning' : 'info') }}">
-                                    {{ ucfirst($ticket->priority) }}
+                        <tr class="hover:bg-rose-50/30 transition-colors duration-150">
+                            <td class="px-6 py-4 text-sm text-gray-500">#{{ $ticket->id }}</td>
+                            <td class="px-6 py-4">
+                                <span class="text-sm font-medium text-gray-800">{{ $ticket->subject }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ $ticket->organization->name ?? '-' }}</td>
+                            <td class="px-6 py-4">
+                                @php
+                                    $priorityColors = [
+                                        'low' => 'bg-gray-100 text-gray-700',
+                                        'medium' => 'bg-amber-100 text-amber-700',
+                                        'high' => 'bg-orange-100 text-orange-700',
+                                        'urgent' => 'bg-red-100 text-red-700',
+                                    ];
+                                @endphp
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $priorityColors[$ticket->priority] ?? 'bg-gray-100 text-gray-600' }}">
+                                    {{ ucfirst($ticket->priority ?? 'Low') }}
                                 </span>
                             </td>
-                            <td>
-                                <span class="badge bg-{{ $ticket->status === 'resolved' ? 'success' : ($ticket->status === 'in_progress' ? 'warning' : 'secondary') }}">
-                                    {{ str_replace('_', ' ', ucfirst($ticket->status)) }}
+                            <td class="px-6 py-4">
+                                @php
+                                    $statusColors = [
+                                        'open' => 'bg-amber-100 text-amber-700',
+                                        'in_progress' => 'bg-blue-100 text-blue-700',
+                                        'resolved' => 'bg-emerald-100 text-emerald-700',
+                                        'closed' => 'bg-gray-100 text-gray-700',
+                                    ];
+                                @endphp
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium {{ $statusColors[$ticket->status] ?? 'bg-gray-100 text-gray-600' }}">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $ticket->status === 'open' ? 'bg-amber-500' : ($ticket->status === 'in_progress' ? 'bg-blue-500' : 'bg-gray-400') }}"></span>
+                                    {{ ucfirst(str_replace('_', ' ', $ticket->status ?? 'Open')) }}
                                 </span>
                             </td>
-                            <td>{{ $ticket->created_at->format('Y-m-d') }}</td>
-                            <td>
-                                <a href="{{ route('admin.support.show', $ticket->id) }}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <form action="{{ route('admin.support.destroy', $ticket->id) }}" method="POST" style="display:inline-block">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this ticket?')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ $ticket->created_at->format('M d, Y') }}</td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <a href="{{ route('admin.support.show', $ticket->id) }}" class="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition">
+                                        <i class="fa-solid fa-eye text-sm"></i>
+                                    </a>
+                                    <a href="{{ route('admin.support.edit', $ticket->id) }}" class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 flex items-center justify-center transition">
+                                        <i class="fa-solid fa-pen text-sm"></i>
+                                    </a>
+                                    <form action="{{ route('admin.support.destroy', $ticket->id) }}" method="POST" class="inline">
+                                        @csrf @method('DELETE')
+                                        <button class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition" onclick="return confirm('Delete this ticket?')">
+                                            <i class="fa-solid fa-trash text-sm"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="8" class="text-center">No tickets found.</td></tr>
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+                                        <i class="fa-solid fa-headset text-2xl text-gray-400"></i>
+                                    </div>
+                                    <p class="text-sm text-gray-500 font-medium">No tickets found</p>
+                                    <a href="{{ route('admin.support.create') }}" class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition">
+                                        <i class="fa-solid fa-plus"></i> Create Ticket
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            {{ $tickets->links() }}
+            @if($tickets->hasPages())
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50/50">
+                {{ $tickets->links() }}
+            </div>
+            @endif
         </div>
     </div>
 </div>

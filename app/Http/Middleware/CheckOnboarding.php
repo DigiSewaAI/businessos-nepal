@@ -11,12 +11,17 @@ class CheckOnboarding
     public function handle(Request $request, Closure $next)
     {
         $user = Auth::user();
-        
-        // If user hasn't completed onboarding, redirect to onboarding
-        if ($user && !$user->onboarding_completed) {
+
+        // ✅ Super Admin लाई skip गर्नुहोस्
+        if ($user && $user->hasRole('Super Admin')) {
+            return $next($request);
+        }
+
+        // ✅ Normal user को onboarding check
+        if ($user && !$user->organization) {
             return redirect()->route('onboarding');
         }
-        
+
         return $next($request);
     }
 }

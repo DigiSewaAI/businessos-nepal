@@ -3,105 +3,69 @@
 @section('title', 'Analytics')
 
 @section('content')
-<div class="container-fluid">
-    <h1 class="mb-4">Platform Analytics</h1>
+<div class="py-6 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+                    <i class="fa-solid fa-chart-line text-white text-sm"></i>
+                </span>
+                Analytics
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">Platform-wide analytics and insights</p>
+        </div>
 
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Organizations</h5>
-                    <h2>{{ $totalOrganizations ?? 0 }}</h2>
-                </div>
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Orgs</p>
+                <p class="text-2xl font-bold text-gray-900">{{ $totalOrganizations ?? 0 }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Users</p>
+                <p class="text-2xl font-bold text-blue-600">{{ $totalUsers ?? 0 }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Revenue</p>
+                <p class="text-2xl font-bold text-emerald-600">Rs. {{ number_format($totalRevenue ?? 0, 0) }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Sales</p>
+                <p class="text-2xl font-bold text-purple-600">{{ $totalSales ?? 0 }}</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Users</h5>
-                    <h2>{{ $totalUsers ?? 0 }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Revenue</h5>
-                    <h2>NPR {{ number_format($totalRevenue ?? 0, 2) }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Sales</h5>
-                    <h2>{{ $totalSales ?? 0 }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header"><strong>Organizations by Plan</strong></div>
-                <div class="card-body">
-                    @if(isset($organizationsByPlan) && $organizationsByPlan->count())
-                        <ul class="list-group">
-                            @foreach($organizationsByPlan as $plan => $count)
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <span>{{ $plan ?: 'No Plan' }}</span>
-                                    <span class="badge bg-primary">{{ $count }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <p class="text-muted">No data available.</p>
-                    @endif
+        <!-- Charts Placeholder -->
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-6">
+                <h3 class="font-semibold text-gray-800 mb-4">Revenue Trend</h3>
+                <div class="h-48 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
+                    <span>📊 Revenue chart coming soon</span>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-6">
+                <h3 class="font-semibold text-gray-800 mb-4">Organization Growth</h3>
+                <div class="h-48 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
+                    <span>📈 Growth chart coming soon</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header"><strong>Monthly Registrations</strong></div>
-                <div class="card-body">
-                    @if(isset($monthlyRegistrations) && $monthlyRegistrations->count())
-                        <canvas id="registrationsChart" height="200"></canvas>
-                    @else
-                        <p class="text-muted">No registration data available.</p>
-                    @endif
+
+        <!-- Plans Distribution -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-6">
+            <h3 class="font-semibold text-gray-800 mb-4">Plans Distribution</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                @forelse($organizationsByPlan ?? [] as $plan => $count)
+                <div class="bg-gray-50 rounded-lg p-4 text-center">
+                    <p class="text-xs text-gray-500">{{ $plan ?? 'Unknown' }}</p>
+                    <p class="text-xl font-bold text-gray-900">{{ $count }}</p>
                 </div>
+                @empty
+                <p class="text-sm text-gray-400 col-span-4 text-center py-4">No data available</p>
+                @endforelse
             </div>
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    @if(isset($monthlyRegistrations) && $monthlyRegistrations->count())
-    const ctx = document.getElementById('registrationsChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: @json($monthlyRegistrations->pluck('month')),
-            datasets: [{
-                label: 'New Organizations',
-                data: @json($monthlyRegistrations->pluck('count')),
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 2,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' }
-            }
-        }
-    });
-    @endif
-</script>
-@endpush
 @endsection
