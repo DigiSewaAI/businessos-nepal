@@ -218,5 +218,30 @@ Route::middleware(['auth'])->group(function () {
         return response()->json($sections);
     });
 });
+// ========== SUPER ADMIN ROUTES ==========
+Route::middleware(['auth', 'role:Super Admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('organizations', App\Http\Controllers\OrganizationController::class);
+    Route::resource('users', App\Http\Controllers\UserController::class);
+    Route::resource('plans', App\Http\Controllers\PlanController::class);
+    Route::resource('payments', App\Http\Controllers\PaymentController::class);
+    Route::resource('subscriptions', App\Http\Controllers\SubscriptionController::class);
+    Route::resource('roles', App\Http\Controllers\RoleController::class);
+    Route::resource('support', App\Http\Controllers\SupportController::class);
+    Route::resource('cms', App\Http\Controllers\CMSController::class);
+
+    // Non-resource routes (only index)
+    Route::get('analytics', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('logs', [App\Http\Controllers\LogController::class, 'index'])->name('logs.index');
+    Route::get('settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+    Route::get('backups', [App\Http\Controllers\BackupController::class, 'index'])->name('backups.index');
+
+    // Extra actions for backups
+    Route::post('backups/create', [App\Http\Controllers\BackupController::class, 'create'])->name('backups.create');
+    Route::get('backups/download/{filename}', [App\Http\Controllers\BackupController::class, 'download'])->name('backups.download');
+    Route::delete('backups/{filename}', [App\Http\Controllers\BackupController::class, 'destroy'])->name('backups.destroy');
+
+    // Settings update
+    Route::post('settings/update', [App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+});
 
 require __DIR__.'/auth.php';

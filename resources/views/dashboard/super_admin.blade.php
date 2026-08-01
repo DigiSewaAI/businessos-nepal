@@ -185,49 +185,49 @@
         </div>
 
         <!-- Quick Actions (Super Admin specific) -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-bolt text-yellow-500"></i> Platform Actions
-            </h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-plus"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700">Create Org</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-green-400 hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-tags"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700">Manage Plans</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-users-gear"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700">Users</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-database"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700">Backup</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-red-400 hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-file-lines"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700">Logs</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-gray-400 hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center group-hover:bg-gray-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-gear"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700">Settings</span>
-                </a>
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-bolt text-yellow-500"></i> Platform Actions
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <a href="{{ route('admin.organizations.create') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
+                <i class="fa-solid fa-plus"></i>
             </div>
-        </div>
+            <span class="text-sm font-medium text-gray-700">Create Org</span>
+        </a>
+        <a href="{{ route('admin.plans.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-green-400 hover:shadow-md transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition">
+                <i class="fa-solid fa-tags"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Manage Plans</span>
+        </a>
+        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition">
+                <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Users</span>
+        </a>
+        <a href="{{ route('admin.backups.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:shadow-md transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Backup</span>
+        </a>
+        <a href="{{ route('admin.logs.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-red-400 hover:shadow-md transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition">
+                <i class="fa-solid fa-file-lines"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Logs</span>
+        </a>
+        <a href="{{ route('admin.settings.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-gray-400 hover:shadow-md transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center group-hover:bg-gray-600 group-hover:text-white transition">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Settings</span>
+        </a>
+    </div>
+</div>
 
     </div>
 </div>
