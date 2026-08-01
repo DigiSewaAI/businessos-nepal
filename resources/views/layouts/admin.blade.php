@@ -99,10 +99,9 @@
     </div>
 
     <!-- ============ SIDEBAR ============ -->
-    <aside x-data="{ sidebarOpen: false }"
-           @click.away="sidebarOpen = false"
-           class="sidebar fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 shadow-2xl lg:shadow-none transition-transform duration-300 ease-in-out"
-           x-show="sidebarOpen"
+    <aside @click.away="sidebarOpen = false"
+       class="sidebar fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 shadow-2xl lg:shadow-none transition-transform duration-300 ease-in-out"
+       x-show="sidebarOpen"
            x-transition:enter="transition-transform duration-300 ease-in-out"
            x-transition:enter-start="-translate-x-full"
            x-transition:enter-end="translate-x-0"
@@ -141,10 +140,14 @@
                             @if(isset($item['permission']) && !auth()->user()->can($item['permission']))
                                 @continue
                             @endif
-                            @if(!Route::has($item['route']))
-                                @continue
-                            @endif
-                            <a href="{{ route($item['route']) }}"
+                            @php
+    $routeExists = Route::has($item['route']);
+    $url = $routeExists ? route($item['route']) : '#';
+    if (!$routeExists && $item['route'] !== '#') {
+        continue;
+    }
+@endphp
+<a href="{{ $url }}"
                                class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:text-blue-600 transition-all
                                {{ request()->routeIs($item['active']) ? 'active text-blue-600' : '' }}">
                                 <i class="fa-solid {{ $item['icon'] }} w-5 text-center text-gray-400 {{ request()->routeIs($item['active']) ? 'text-blue-600' : '' }}"></i>

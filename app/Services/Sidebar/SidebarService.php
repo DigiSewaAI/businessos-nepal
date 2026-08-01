@@ -14,14 +14,17 @@ class SidebarService
         $this->menuBuilder = $menuBuilder;
     }
 
-    /**
-     * Get sidebar menu items for the current user.
-     */
     public function getSidebar(): array
     {
         $user = Auth::user();
-        $organization = $user->organization;
-        $industry = $organization->industry ?? 'retail';
+
+        // ✅ Super Admin check
+        if ($user->hasRole('Super Admin')) {
+            $industry = 'super_admin';
+        } else {
+            $organization = $user->organization;
+            $industry = $organization->industry ?? 'retail';
+        }
 
         return $this->menuBuilder->build($industry, $user);
     }

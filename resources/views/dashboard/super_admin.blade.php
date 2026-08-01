@@ -3,242 +3,232 @@
 @section('title', 'Super Admin Dashboard')
 
 @section('content')
-<div class="pt-4 pb-4 px-4 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 min-h-screen">
+<div class="pt-4 pb-8 px-4 bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+
+        <!-- Welcome Header -->
+        <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                    <span class="bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">Super Admin</span>
-                    <span class="text-sm font-normal text-gray-400">|</span>
-                    <span class="text-sm font-medium text-gray-500">Full System Overview</span>
+                <h1 class="text-2xl font-bold text-gray-900">
+                    Good Morning, {{ $admin_name }}! ☀️
                 </h1>
-                <p class="text-gray-500 mt-1 text-sm">
-                    <i class="fa-regular fa-calendar-alt mr-1"></i> {{ now()->format('l, F j, Y') }}
+                <p class="text-sm text-gray-500">
+                    <i class="fa-regular fa-circle-check text-green-500 mr-1"></i>
+                    BusinessOS Platform Overview · <span class="font-semibold">{{ $org_count }}</span> Organizations
                 </p>
             </div>
-            <div class="flex gap-3 mt-3 md:mt-0">
-                <a href="{{ route('sales.index') }}" class="bg-white px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:shadow-md transition-all">
-                    <i class="fa-solid fa-chart-simple mr-1"></i> View Sales
-                </a>
-                <a href="#" class="bg-white px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:shadow-md transition-all">
-                    <i class="fa-solid fa-file-pdf mr-1"></i> Reports
-                </a>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-400">{{ now()->format('l, F j, Y') }}</span>
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-xs text-green-600">System Online</span>
             </div>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-            <!-- Card 1: Organizations -->
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 group">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-building text-3xl opacity-50 group-hover:opacity-100 transition"></i>
-                    <span class="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">Total</span>
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Organizations</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ $total_organizations }}</p>
+                <div class="flex gap-3 mt-2 text-xs">
+                    <span class="text-green-600">Paid: {{ $paid_organizations }}</span>
+                    <span class="text-yellow-600">Trial: {{ $trial_organizations }}</span>
                 </div>
-                <p class="text-3xl font-bold mt-3">{{ $total_organizations }}</p>
-                <p class="text-sm opacity-80">Organizations</p>
             </div>
-
-            <!-- Card 2: Users -->
-            <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 group">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-users text-3xl opacity-50 group-hover:opacity-100 transition"></i>
-                    <span class="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">Total</span>
-                </div>
-                <p class="text-3xl font-bold mt-3">{{ $total_users }}</p>
-                <p class="text-sm opacity-80">Users</p>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">MRR</p>
+                <p class="text-2xl font-bold text-blue-600 mt-1">Rs. {{ number_format($mrr, 0) }}</p>
+                <p class="text-xs text-gray-400 mt-1">Monthly Recurring Revenue</p>
             </div>
-
-            <!-- Card 3: Branches -->
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 group">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-store text-3xl opacity-50 group-hover:opacity-100 transition"></i>
-                    <span class="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">Total</span>
-                </div>
-                <p class="text-3xl font-bold mt-3">{{ $total_branches }}</p>
-                <p class="text-sm opacity-80">Branches</p>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Today's Revenue</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">Rs. {{ number_format($today_revenue, 0) }}</p>
+                <p class="text-xs text-gray-400 mt-1">This Month: Rs. {{ number_format($month_revenue, 0) }}</p>
             </div>
-
-            <!-- Card 4: Products -->
-            <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 group">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-boxes-stacked text-3xl opacity-50 group-hover:opacity-100 transition"></i>
-                    <span class="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">Total</span>
-                </div>
-                <p class="text-3xl font-bold mt-3">{{ $total_products }}</p>
-                <p class="text-sm opacity-80">Products</p>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Revenue</p>
+                <p class="text-2xl font-bold text-emerald-600 mt-1">Rs. {{ number_format($total_revenue, 0) }}</p>
+                <p class="text-xs text-gray-400 mt-1">Lifetime platform revenue</p>
             </div>
-
-            <!-- Card 5: Categories -->
-            <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 group">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-tags text-3xl opacity-50 group-hover:opacity-100 transition"></i>
-                    <span class="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">Total</span>
-                </div>
-                <p class="text-3xl font-bold mt-3">{{ $total_categories }}</p>
-                <p class="text-sm opacity-80">Categories</p>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Today's Signups</p>
+                <p class="text-2xl font-bold text-purple-600 mt-1">{{ $today_signups }}</p>
+                <p class="text-xs text-gray-400 mt-1">New organizations today</p>
             </div>
-
-            <!-- Card 6: Revenue -->
-            <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 group">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-coin-bill text-3xl opacity-50 group-hover:opacity-100 transition"></i>
-                    <span class="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">Total</span>
-                </div>
-                <p class="text-2xl font-bold mt-3">Rs. {{ number_format($total_revenue, 0) }}</p>
-                <p class="text-sm opacity-80">Revenue</p>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Expiring Plans</p>
+                <p class="text-2xl font-bold text-red-600 mt-1">{{ $expiring_plans }}</p>
+                <p class="text-xs text-gray-400 mt-1">Within 7 days</p>
             </div>
         </div>
 
-        <!-- ===== NEW: AI ASSISTANT WIDGET ===== -->
-        <div class="mb-8 bg-gradient-to-r from-blue-50 via-white to-teal-50 rounded-2xl border border-blue-100 p-6 shadow-sm hover:shadow-md transition-all">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-teal-500 rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg">
-                        <i class="fa-regular fa-comment-dots"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-800">🤖 AI Assistant</h3>
-                        <p class="text-sm text-gray-500">Ask anything about the system — sales, stock, revenue, or get instant insights.</p>
-                    </div>
+        <!-- Charts (Placeholder) -->
+        <div class="grid lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-area text-blue-500"></i> Revenue Trend
+                </h3>
+                <div class="h-48 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
+                    <span>📊 Chart coming soon</span>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <a href="{{ route('ai.chat') }}" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md hover:shadow-lg flex items-center gap-2">
-                        <i class="fa-regular fa-paper-plane"></i> Ask AI
-                    </a>
-                    <button onclick="quickAIQuery('total_revenue')" class="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition flex items-center gap-1.5">
-                        💰 Revenue
-                    </button>
-                    <button onclick="quickAIQuery('top_products')" class="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition flex items-center gap-1.5">
-                        📦 Top Products
-                    </button>
-                    <button onclick="quickAIQuery('system_health')" class="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition flex items-center gap-1.5">
-                        📊 System Health
-                    </button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-trend-up text-emerald-500"></i> Organization Growth
+                </h3>
+                <div class="h-48 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
+                    <span>📈 Chart coming soon</span>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Activities -->
-        <div class="grid md:grid-cols-2 gap-6">
+        <!-- Recent Lists -->
+        <div class="grid lg:grid-cols-3 gap-6 mb-8">
             <!-- Recent Organizations -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all">
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="font-bold text-gray-800 flex items-center gap-2">
-                        <i class="fa-solid fa-building text-blue-500"></i> Recent Organizations
-                        <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{{ $recent_organizations->count() }}</span>
-                    </h3>
-                </div>
-                <ul class="divide-y divide-gray-100">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-building text-blue-500"></i> Recent Organizations
+                </h3>
+                <div class="space-y-4">
                     @forelse($recent_organizations as $org)
-                    <li class="px-6 py-3 flex justify-between items-center hover:bg-gray-50 transition">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
-                                {{ substr($org->name, 0, 2) }}
-                            </div>
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                             <div>
-                                <p class="font-medium text-gray-800 text-sm">{{ $org->name }}</p>
-                                <p class="text-xs text-gray-400">{{ $org->email ?? 'No email' }}</p>
+                                <p class="text-sm font-medium text-gray-800">{{ $org->name }}</p>
+                                <p class="text-xs text-gray-400">{{ $org->plan }} · {{ ucfirst($org->status) }}</p>
                             </div>
+                            <span class="text-xs text-gray-400">{{ $org->joined }}</span>
                         </div>
-                        <span class="text-xs text-gray-400">{{ $org->created_at->diffForHumans() }}</span>
-                    </li>
                     @empty
-                    <li class="px-6 py-8 text-center text-gray-400 text-sm">
-                        <i class="fa-regular fa-building text-2xl block mb-2"></i>
-                        No organizations yet.
-                    </li>
+                        <p class="text-sm text-gray-400 text-center py-4">No organizations yet</p>
                     @endforelse
-                </ul>
+                </div>
+            </div>
+
+            <!-- Recent Payments -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-money-bill-wave text-green-500"></i> Recent Payments
+                </h3>
+                <div class="space-y-4">
+                    @forelse($recent_payments as $payment)
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">Rs. {{ number_format($payment->amount, 2) }}</p>
+                                <p class="text-xs text-gray-400">{{ $payment->plan }} · {{ $payment->status }}</p>
+                            </div>
+                            <span class="text-xs text-gray-400">{{ $payment->date }}</span>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-400 text-center py-4">No payments recorded</p>
+                    @endforelse
+                </div>
             </div>
 
             <!-- Recent Users -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all">
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="font-bold text-gray-800 flex items-center gap-2">
-                        <i class="fa-solid fa-users text-emerald-500"></i> Recent Users
-                        <span class="text-xs bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full">{{ $recent_users->count() }}</span>
-                    </h3>
-                </div>
-                <ul class="divide-y divide-gray-100">
-                    @forelse($recent_users as $u)
-                    <li class="px-6 py-3 flex justify-between items-center hover:bg-gray-50 transition">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">
-                                {{ substr($u->name, 0, 2) }}
-                            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-users text-purple-500"></i> Recent Users
+                </h3>
+                <div class="space-y-4">
+                    @forelse($recent_users as $user)
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                             <div>
-                                <p class="font-medium text-gray-800 text-sm">{{ $u->name }}</p>
-                                <p class="text-xs text-gray-400">{{ $u->email }}</p>
+                                <p class="text-sm font-medium text-gray-800">{{ $user->name }}</p>
+                                <p class="text-xs text-gray-400">{{ $user->role }} · {{ $user->organization }}</p>
                             </div>
+                            <span class="text-xs text-gray-400">{{ $user->last_login }}</span>
                         </div>
-                        <span class="text-xs text-gray-400">{{ $u->created_at->diffForHumans() }}</span>
-                    </li>
                     @empty
-                    <li class="px-6 py-8 text-center text-gray-400 text-sm">
-                        <i class="fa-regular fa-user text-2xl block mb-2"></i>
-                        No users yet.
-                    </li>
+                        <p class="text-sm text-gray-400 text-center py-4">No users yet</p>
                     @endforelse
-                </ul>
+                </div>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <!-- System Health -->
+        <div class="grid lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">AI Usage</p>
+                <div class="flex items-end gap-3 mt-1">
+                    <span class="text-2xl font-bold">{{ $system_health['ai_usage'] }}%</span>
+                    <span class="text-xs text-gray-400">of capacity</span>
+                </div>
+                <div class="w-full h-2 bg-gray-200 rounded-full mt-2">
+                    <div class="h-2 bg-blue-500 rounded-full" style="width: {{ $system_health['ai_usage'] }}%"></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Storage</p>
+                <div class="flex items-end gap-3 mt-1">
+                    <span class="text-2xl font-bold">{{ $system_health['storage'] }}%</span>
+                    <span class="text-xs text-gray-400">used</span>
+                </div>
+                <div class="w-full h-2 bg-gray-200 rounded-full mt-2">
+                    <div class="h-2 bg-yellow-500 rounded-full" style="width: {{ $system_health['storage'] }}%"></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Queue</p>
+                <div class="flex items-end gap-3 mt-1">
+                    <span class="text-2xl font-bold text-green-600">{{ $system_health['queue'] }}</span>
+                    <span class="text-xs text-gray-400">pending</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">All jobs healthy</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Failed Jobs</p>
+                <div class="flex items-end gap-3 mt-1">
+                    <span class="text-2xl font-bold text-red-600">{{ $system_health['failed_jobs'] }}</span>
+                    <span class="text-xs text-gray-400">last 24h</span>
+                </div>
+                <p class="text-xs text-green-600 mt-2">✅ No failures</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions (Super Admin specific) -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-bolt text-yellow-500"></i> Quick Actions
+                <i class="fa-solid fa-bolt text-yellow-500"></i> Platform Actions
             </h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <a href="{{ route('sales.pos') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group">
                     <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-cart-plus"></i>
+                        <i class="fa-solid fa-plus"></i>
                     </div>
-                    <span class="text-sm font-medium text-gray-700">POS</span>
+                    <span class="text-sm font-medium text-gray-700">Create Org</span>
                 </a>
-                <a href="{{ route('purchases.create') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-emerald-400 hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-truck"></i>
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-green-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-tags"></i>
                     </div>
-                    <span class="text-sm font-medium text-gray-700">New Purchase</span>
+                    <span class="text-sm font-medium text-gray-700">Manage Plans</span>
                 </a>
-                <a href="{{ route('expenses.create') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700">Add Expense</span>
-                </a>
-                <a href="{{ route('sales.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all group">
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all group">
                     <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-chart-line"></i>
+                        <i class="fa-solid fa-users-gear"></i>
                     </div>
-                    <span class="text-sm font-medium text-gray-700">Sales Report</span>
+                    <span class="text-sm font-medium text-gray-700">Users</span>
                 </a>
-                <!-- ✅ NEW: AI Assistant Quick Action -->
-                <a href="{{ route('ai.chat') }}" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-teal-400 hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition">
-                        <i class="fa-regular fa-comment-dots"></i>
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-database"></i>
                     </div>
-                    <span class="text-sm font-medium text-gray-700">AI Assistant</span>
-                    <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full">New</span>
+                    <span class="text-sm font-medium text-gray-700">Backup</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-red-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-file-lines"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">Logs</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-gray-400 hover:shadow-md transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center group-hover:bg-gray-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">Settings</span>
                 </a>
             </div>
         </div>
+
     </div>
 </div>
-
-<!-- ===== AI QUICK QUERY SCRIPT ===== -->
-@push('scripts')
-<script>
-function quickAIQuery(type) {
-    const queries = {
-        'total_revenue': 'What is the total revenue across all organizations?',
-        'top_products': 'What are the top selling products globally?',
-        'system_health': 'How is the overall system health and performance?'
-    };
-    const message = queries[type] || 'Give me a system overview.';
-    window.location.href = "{{ route('ai.chat') }}?message=" + encodeURIComponent(message);
-}
-</script>
-@endpush
 @endsection

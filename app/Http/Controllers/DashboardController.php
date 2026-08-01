@@ -10,6 +10,7 @@ use App\Models\Organization;
 use App\Models\User;
 use App\Models\Branch;
 use App\Models\Category;
+use App\Models\Plan;
 use App\Services\Dashboard\DashboardFactory;
 use App\Services\Dashboard\Dashboards\SchoolDashboard;
 use App\Services\Dashboard\Dashboards\RetailDashboard;
@@ -18,6 +19,7 @@ use App\Services\Dashboard\Dashboards\TravelDashboard;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema; // ✅ यो import गर्नुहोस्
 
 class DashboardController extends Controller
 {
@@ -32,19 +34,130 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // ===== SUPER ADMIN =====
+        // ===== SUPER ADMIN DASHBOARD =====
         if ($user->hasRole('Super Admin')) {
-            $data = [
-                'total_organizations' => Organization::count(),
-                'total_users' => User::count(),
-                'total_branches' => Branch::count(),
-                'total_products' => Product::count(),
-                'total_categories' => Category::count(),
-                'total_revenue' => Sale::sum('total'),
-                'today_sales' => Sale::whereDate('created_at', today())->sum('total'),
-                'recent_organizations' => Organization::latest()->limit(5)->get(),
-                'recent_users' => User::latest()->limit(5)->get(),
+            // Get all organization IDs
+            $orgIds = Organization::pluck('id');
+
+            // Platform-level metrics
+            $totalOrgs = Organization::count();
+            
+            // If plan_id column exists and Plan model exists, use it; else fallback
+            $paidOrgs = 0;
+            $trialOrgs = 0;
+            if (Schema::hasColumn('organizations', 'plan_id') && class_exists('App\Models\Plan')) {
+                $paidOrgs = Organization::where('plan_id', '>', 1)->count();
+                $trialOrgs = Organization::where('plan_id', 1)->count();
+            }
+
+            $todaySignups = Organization::whereDate('created_at', today())->count();
+
+            // Revenue metrics
+            $mrr = Sale::whereIn('organization_id', $orgIds)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->where('status', 'completed')
+                ->sum('total') ?? 0;
+
+            $todayRevenue = Sale::whereIn('organization_id', $orgIds)
+                ->whereDate('created_at', today())
+                ->where('status', 'completed')
+                ->sum('total') ?? 0;
+
+            $monthRevenue = Sale::whereIn('organization_id', $orgIds)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->where('status', 'completed')
+                ->sum('total') ?? 0;
+
+            $totalRevenue = Sale::whereIn('organization_id', $orgIds)
+                ->where('status', 'completed')
+                ->sum('total') ?? 0;
+
+            // Expiring plans (next 7 days) – if subscription relationship exists
+            $expiringPlans = 0;
+            if (method_exists(new Organization(), 'subscription')) {
+                $expiringPlans = Organization::whereHas('subscription', function($q) {
+                    $q->whereDate('ends_at', '>=', now())
+                        ->whereDate('ends_at', '<=', now()->addDays(7));
+                })->count();
+            }
+
+            // System health (placeholders)
+            $systemHealth = [
+                'ai_usage' => 85,
+                'storage' => 62,
+                'queue' => 0,
+                'failed_jobs' => 0,
             ];
+
+            // Recent organizations (without eager loading of plan)
+            $recentOrgs = Organization::latest()
+                ->limit(5)
+                ->get()
+                ->map(function($org) {
+                    // Get plan name safely
+                    $planName = 'Free';
+                    if (isset($org->plan_id) && class_exists('App\Models\Plan')) {
+                        $plan = Plan::find($org->plan_id);
+                        $planName = $plan->name ?? 'Free';
+                    }
+                    return (object) [
+                        'id' => $org->id,
+                        'name' => $org->name,
+                        'plan' => $planName,
+                        'status' => $org->status ?? 'active',
+                        'joined' => $org->created_at->diffForHumans(),
+                    ];
+                });
+
+            // Recent payments (using sales as proxy)
+            $recentPayments = Sale::whereIn('organization_id', $orgIds)
+                ->where('status', 'completed')
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(function($sale) {
+                    return (object) [
+                        'amount' => $sale->total,
+                        'plan' => 'Standard', // placeholder
+                        'status' => 'Completed',
+                        'date' => $sale->created_at->diffForHumans(),
+                    ];
+                });
+
+            // Recent users with role and organization
+            $recentUsers = User::with('organization')
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(function($user) {
+                    return (object) [
+                        'name' => $user->name,
+                        'role' => $user->roles->first()->name ?? 'User',
+                        'organization' => $user->organization->name ?? 'N/A',
+                        'last_login' => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
+                    ];
+                });
+
+            $data = [
+                'total_organizations' => $totalOrgs,
+                'paid_organizations' => $paidOrgs,
+                'trial_organizations' => $trialOrgs,
+                'today_signups' => $todaySignups,
+                'mrr' => $mrr,
+                'today_revenue' => $todayRevenue,
+                'month_revenue' => $monthRevenue,
+                'total_revenue' => $totalRevenue,
+                'expiring_plans' => $expiringPlans,
+                'system_health' => $systemHealth,
+                'recent_organizations' => $recentOrgs,
+                'recent_payments' => $recentPayments,
+                'recent_users' => $recentUsers,
+                'org_count' => $totalOrgs,
+                'admin_name' => $user->name,
+            ];
+
             return view('dashboard.super_admin', $data);
         }
 
@@ -53,13 +166,10 @@ class DashboardController extends Controller
         $organizationId = $organization->id;
         $industry = $organization->industry ?? 'retail';
 
-        // ✅ If dynamic dashboard feature is OFF, use legacy dashboard
         if (!config('businessos.features.dynamic_dashboard', false)) {
             return $this->renderLegacyDashboard($organizationId);
         }
 
-        // ✅ Temporary bypass: directly instantiate dashboard for specific industries
-        // This avoids the factory issue where 'school' falls back to 'retail'
         $dashboard = null;
         $view = null;
         $data = [];
@@ -69,10 +179,7 @@ class DashboardController extends Controller
             $data = $dashboard->getData();
             $view = 'dashboard.school';
         }
-        // Add other specific industries here if needed
-        // elseif ($industry === 'restaurant') { ... }
 
-        // If no specific industry matched, fallback to factory
         if (!$dashboard) {
             $dashboard = $this->dashboardFactory->create(
                 $organizationId,
@@ -83,10 +190,8 @@ class DashboardController extends Controller
             $view = $dashboard->getView();
         }
 
-        // ✅ If view doesn't exist, fallback to retail
         if (!view()->exists($view)) {
             $view = 'dashboard.retail';
-            // If we don't have data for retail, get it from factory
             if ($industry !== 'retail') {
                 $retailDashboard = new RetailDashboard($organizationId, 'retail');
                 $data = $retailDashboard->getData();
